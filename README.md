@@ -54,10 +54,27 @@ This skill separates the **strategic** chat (you + orchestrator) from **executio
 
 ## Quickstart
 
-### 1. Install the skill globally
+### 1. Install the skill (one-liner)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
+```
+
+The installer:
+- Checks dependencies (`git`, `bash`, `gh`, `yq`, `python3`)
+- Clones to `~/.claude/skills/sprint-orchestrator/`
+- Prints next steps
+
+Manual install (if you prefer to review first):
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
+```
+
+Update later:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash -s -- update
 ```
 
 ### 2. Initialize in your project

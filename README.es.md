@@ -54,10 +54,27 @@ La skill separa el chat **estratégico** (tú + orquestador) de los chats de **e
 
 ## Quickstart
 
-### 1. Instala la skill globalmente
+### 1. Instala la skill (one-liner)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
+```
+
+El installer:
+- Verifica dependencias (`git`, `bash`, `gh`, `yq`, `python3`)
+- Clona a `~/.claude/skills/sprint-orchestrator/`
+- Muestra próximos pasos
+
+Install manual (si prefieres revisar antes):
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
+```
+
+Actualizar después:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash -s -- update
 ```
 
 ### 2. Inicializa en tu proyecto

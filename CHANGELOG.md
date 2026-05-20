@@ -5,6 +5,18 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased] — v1.0.1 (installer)
+
+### Added
+
+- **`install.sh`** — one-liner installer at repo root. Commands: `install` (default), `update`, `uninstall`. Checks dependencies (`git`, `bash`, `gh`, `yq`, `python3`), warns about optional missing ones, supports `SPRINT_ORCHESTRATOR_DIR` env var override.
+- One-liner now published in 3 README languages: `curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash`
+
+### Changed
+
+- Tutorial updated with 3 install methods (one-liner, review-first, direct clone)
+- READMEs Quickstart section reordered: one-liner first, manual fallback second
+
 ## [Unreleased] — Fase 2 (workflows avançados)
 
 ### Added — 3 workflows novos

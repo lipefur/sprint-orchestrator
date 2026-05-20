@@ -10,7 +10,25 @@ A complete walkthrough from zero to your first sprint. Estimated time: **15 minu
 - `gh` CLI installed and authenticated (`gh auth status`)
 - A project repository (we'll use a fictional Next.js + Postgres example below)
 
-## Step 1: Install the skill globally
+## Step 1: Install the skill
+
+**Recommended (one-liner):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
+```
+
+The installer checks dependencies, clones the skill to `~/.claude/skills/sprint-orchestrator/`, and prints next steps.
+
+**Manual (if you prefer to inspect the install script first):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh -o /tmp/install.sh
+less /tmp/install.sh         # review it
+bash /tmp/install.sh
+```
+
+**Direct clone (skip installer entirely):**
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
