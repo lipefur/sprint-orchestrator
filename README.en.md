@@ -286,4 +286,4 @@ MIT — see [LICENSE](LICENSE). Fork freely.
 
 ## Origin
 
-Built and validated in 17+ production sprints between May 2026 and the public release. Original validation in the [SuperDB](https://github.com/private/project) project (Brazilian multi-tenant BaaS) — see [`examples/superdb-profile.yml`](examples/superdb-profile.yml) for the canonical real-world profile.
+Built and validated in 17+ production sprints between May 2026 and the public release — in a production multi-tenant BaaS project. See [`examples/multi-tenant-saas-profile.yml`](examples/multi-tenant-saas-profile.yml) for an anonymized real-world profile.

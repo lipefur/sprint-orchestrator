@@ -114,4 +114,4 @@ Yes — see "Status" section in [README.en.md](../README.en.md) (English) or [RE
 
 ## Where did this come from?
 
-Built and validated in the [SuperDB](https://github.com/private/project) project (a multi-tenant BaaS in Portuguese-speaking dev community), across 17+ production sprints between May 2026 and the redesign that produced v1.0.
+Built and validated across 17+ production sprints between May 2026 and the redesign that produced v1.0, in a multi-tenant BaaS project. See [`examples/multi-tenant-saas-profile.yml`](../examples/multi-tenant-saas-profile.yml) for an anonymized reference profile.

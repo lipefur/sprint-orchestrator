@@ -20,7 +20,7 @@
 - [ ] If adding bug pattern: includes Symptom + Cause + Fix + Real case
 - [ ] If translating: file is `README.<lang-code>.md` and matches structure of existing README.md
 - [ ] CHANGELOG.md updated under `[Unreleased]` section
-- [ ] No accidental SuperDB-specific references in agnostic files
+- [ ] No real hostnames, SSH aliases, domain names, or usernames in example profiles or docs (use `<placeholder>` / `example.com` / `production-vps` / `<your-github-username>`)
 
 ## Test plan
 

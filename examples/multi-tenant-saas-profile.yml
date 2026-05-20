@@ -1,0 +1,82 @@
+# Example: Multi-tenant SaaS profile (anonymized real-world reference)
+#
+# Based on the original profile used to validate this skill across 17+ production
+# sprints. Anonymized for public distribution — names, hostnames, and URLs are
+# fictional placeholders. Adapt to your stack.
+
+version: 1
+project_name: acme-saas
+default_branch: main
+
+paths:
+  plans: docs/superpowers/plans
+  worktrees: .claude/worktrees
+  memory: ~/.claude/projects/<PROJECT-HASH>/memory
+
+smoke:
+  local: bin/smoke-local.sh
+  ci_workflow: smoke-e2e.yml
+
+git:
+  worktree_prefix: sprint
+  pr_title_prefix: "feat(sprint-N):"
+  conventional_commits: true
+  semantic_release: true     # auto tag + CHANGELOG + release
+
+dispatch:
+  method: auto               # auto-detect IDE (Claude Code, Cursor, VS Code, etc.)
+
+deploy_method: coolify-ssh
+
+addons:
+  - postgres
+  - multi-tenant
+  - monorepo
+  - nextjs
+  - coolify-ssh
+  - github-actions
+  - nginx
+  - docs-public
+  - hono
+  - e2e-validation
+
+# Notifications: GitHub + macOS combined for max redundancy
+notifications:
+  github_assignee: <your-github-username>
+  github_label: ready-for-review
+  macos: true                # macOS Notification Center popup when PR detected
+  webhook: null
+  email: null
+
+# Advanced workflows (opt-in)
+adversarial_review:
+  enabled: true
+  skip_types: [infra]
+  reviewer_model: sonnet
+  max_comments: 8
+
+github-actions:
+  preview_validation: true
+  preview_platform: coolify
+
+# Per-addon overrides (replace placeholders with your values)
+coolify-ssh:
+  host_alias: production-vps    # ssh alias defined in ~/.ssh/config
+  api_base: https://coolify.example.com
+  # COOLIFY_TOKEN is read from env var, NEVER stored here
+
+postgres:
+  containers_pattern: "postgres-*"
+  superuser_role: postgres
+  service_role: platform_admin
+
+multi-tenant:
+  global_schemas: [auth_global, proj_management]   # global schemas (shared across tenants)
+  tenant_schema_pattern: "proj_*"                  # per-tenant schema pattern
+  tenant_role_pattern: "proj_{slug}_owner"         # per-tenant role pattern
+
+monorepo:
+  workspaces_root: .          # workspaces declared in root package.json
+
+nextjs:
+  apps: [apps/dashboard, services/admin-ui]   # where Next.js apps live in the monorepo

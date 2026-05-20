@@ -5,6 +5,27 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased] — v1.0.3 (anonymized example profile)
+
+### Security / Privacy
+
+- **Removed real hostnames and URLs** from `examples/`. The original example file leaked a live admin panel URL of a production project — replaced with `https://coolify.example.com` placeholder.
+- **Renamed** original example file → `examples/multi-tenant-saas-profile.yml`
+- Project name in example: real name → `acme-saas`
+- SSH alias in example: real alias → `production-vps`
+- GitHub username in example: hardcoded user → `<your-github-username>` placeholder
+- Removed link to the original private project repo from all 3 READMEs and FAQ
+- Removed marketing-style attribution that pointed to a live private repo
+
+### Added
+
+- `CONTRIBUTING.md` now explicitly forbids real hostnames/usernames in example profiles
+- PR template checklist updated to enforce the rule
+
+### Rationale
+
+Even meta-information (hostname of an admin panel, internal schema names) reduces "security through obscurity" — a legitimate defense layer for self-hosted infra. The skill demonstrates patterns; it doesn't need to point at any specific live production instance.
+
 ## [Unreleased] — v1.0.2 (Portuguese as primary)
 
 ### Changed

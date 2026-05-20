@@ -42,7 +42,9 @@ The README is currently in English, Portuguese (BR) and Spanish. Other languages
 
 ### 📋 Example profiles
 
-`examples/` only has the SuperDB profile right now. More profiles welcome (Next.js+Vercel, Django+Render, Spring Boot+AWS, etc.) — they help others understand how to configure.
+`examples/` only has one anonymized profile right now (`multi-tenant-saas-profile.yml`). More profiles welcome (Next.js+Vercel, Django+Render, Spring Boot+AWS, etc.) — they help others understand how to configure.
+
+**Anonymization rule for example profiles:** never include real hostnames, real internal hostnames, real SSH aliases, real domain names, or real GitHub usernames. Use placeholders like `<your-github-username>`, `https://coolify.example.com`, `production-vps`. The example file should be safe to publish even if the contributor's own infra is sensitive.
 
 ## How to contribute
 
