@@ -1,8 +1,9 @@
 # sprint-orchestrator
 
-> Portable multi-chat sprint orchestration skill for Claude Code. Validated in 17+ production sprints.
+> **Stop losing context in long Claude chats.** Build big features sprint-by-sprint with persistent memory, parallel execution, and learned anti-patterns.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest](https://img.shields.io/github/v/release/lipefur/sprint-orchestrator?color=blue)](https://github.com/lipefur/sprint-orchestrator/releases)
 [![Status](https://img.shields.io/badge/status-active-success.svg)](#status)
 [![Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-orange.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -13,158 +14,175 @@
 
 ---
 
-## What this is
+## 🤔 The problem
 
-A skill that teaches Claude Code to orchestrate software sprints across **multiple chats**:
+You want to build something big with Claude. You start a chat. You explain what you want. Claude starts coding. Two hours later:
 
-- An **orchestrator chat** where you brainstorm, plan, review and merge
-- One or more **sprint chats** spawned per sprint that execute the plan in parallel
+- 😵 The chat is huge. Claude forgot the decisions you made early.
+- 🐌 Everything happens one task at a time, even when 4 things could run in parallel.
+- 🔁 You explain the same conventions over and over.
+- 💔 Bugs from last sprint? Forgotten. Claude makes them again.
 
-This pattern avoids context bloat in long chats and enables real parallelism via multi-agent dispatch.
+**Sound familiar?**
 
-## Why it exists
+## ✨ The idea
 
-Long Claude chats forget context. A single chat for "build feature X" eventually:
+Think of building software like making a movie:
 
-- Forgets decisions made early
-- Serializes work that could parallelize
-- Mixes brainstorming with implementation
-- Loses lessons from previous sprints
+| Role | Who |
+|---|---|
+| 🎬 **Director** (creative vision, approves cuts) | **You** |
+| 📋 **Production Manager** (plans, reviews, ships) | **Orchestrator chat** (stays open for the project) |
+| 🎥 **Film Crew** (each one shoots one scene) | **Sprint chats** (one per feature, spawned and disposed) |
 
-This skill separates the **strategic** chat (you + orchestrator) from **execution** chats (Claude focused on one sprint at a time), with persistent state in a `state.md` file and learned anti-patterns documented per addon.
+You don't film every frame yourself. You **direct**, the production manager **plans and reviews**, the crews **execute in parallel**.
 
-## Workflow at a glance
+That's it. That's the skill.
 
-```
-┌─────────────────────────────────┐
-│  ORCHESTRATOR CHAT (you stay)   │
-│  • Brainstorm + plan            │
-│  • Review + merge + deploy      │
-└─────────────────────────────────┘
-              ↓ dispatch via URL scheme
-┌─────────────────────────────────┐
-│  SPRINT CHAT (new Claude)       │
-│  • Reads committed plan         │
-│  • Multi-agent parallel exec    │
-│  • Opens PR (doesn't merge)     │
-└─────────────────────────────────┘
-              ↓ PR ready
-       back to orchestrator
-```
+## 🎯 Before / After
 
-## Quickstart
+| | **Without this skill** | **With this skill** |
+|---|---|---|
+| **Chat structure** | 1 giant chat that forgets context | 1 orchestrator + N focused sprint chats |
+| **Decisions** | Made early, lost later | Captured in plans, committed to git |
+| **Parallelism** | One thing at a time | 1-4 agents per sprint, multi-sprint possible |
+| **Memory between sprints** | None | `state.md` + `bug-patterns.md` per addon |
+| **Quality control** | You read every PR manually | Adversarial Claude reviews first, you arbitrate |
+| **Validation** | "It works on my machine" | GitHub Action deploys preview + runs Playwright automatically |
+| **Lessons learned** | Lost in chat history | Auto-captured as bug patterns after each deploy |
 
-### 1. Install the skill (one-liner)
+## 👥 Who this is for
+
+- **Devs using Claude Code daily** on real projects (not just demos)
+- **Solo founders / indie hackers** building multi-feature products
+- **Small teams** that want structured AI-assisted workflows
+- **Anyone with multiple repos** wanting consistent process across them
+
+**Not for:** one-off scripts, throwaway prototypes, "just fix this typo" tasks. Use Claude directly for those.
+
+## 🚀 Install (1 command)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
 ```
 
-The installer:
-- Checks dependencies (`git`, `bash`, `gh`, `yq`, `python3`)
-- Clones to `~/.claude/skills/sprint-orchestrator/`
-- Prints next steps
+The installer checks dependencies, clones the skill to `~/.claude/skills/sprint-orchestrator/`, and prints next steps.
 
-Manual install (if you prefer to review first):
+<details>
+<summary>Other install methods (manual / review-first / custom location)</summary>
+
+**Review the installer first:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh -o /tmp/install.sh
+less /tmp/install.sh        # inspect it
+bash /tmp/install.sh
+```
+
+**Direct clone (skip installer):**
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
 ```
 
-Update later:
+**Custom location:**
+
+```bash
+SPRINT_ORCHESTRATOR_DIR=/custom/path bash install.sh
+```
+
+**Update later:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash -s -- update
 ```
 
-### 2. Initialize in your project
+</details>
+
+## 📖 Quickstart (3 steps)
+
+### 1. Set up your project (once)
 
 ```bash
 cd path/to/your/project
 bash ~/.claude/skills/sprint-orchestrator/scripts/init.sh
 ```
 
-The script will:
+The script inspects your repo, detects your stack (Postgres? Next.js? Monorepo?), asks a few questions, and writes `.sprint-orchestrator.yml`.
 
-- Inspect your repo (`package.json`, `docker-compose.yml`, `next.config.*`, `vercel.json`, `migrations/`, etc.)
-- Detect addons (`postgres`, `nextjs`, `monorepo`, etc.)
-- Ask what it couldn't infer (deploy method, smoke command)
-- Write `.sprint-orchestrator.yml` to your repo root
+### 2. Plan a sprint
 
-### 3. Start a sprint
+Open Claude Code in your project. Say:
 
-In Claude Code, in your project's orchestrator chat:
+> "Let's plan sprint 1 — implement OAuth login"
 
-> "Plan sprint 1 — implement OAuth login"
+Claude brainstorms with you, writes a detailed plan, commits it to `main`.
 
-Claude brainstorms with you, writes the plan, commits to main. Then:
+### 3. Dispatch the sprint
 
 ```bash
 bash ~/.claude/skills/sprint-orchestrator/scripts/create-worktree.sh 1 oauth-login
 ```
 
-This opens a new Claude Code window via `claude-cli://` URL scheme, already running in the worktree with the plan as initial prompt.
+A **new Claude Code window opens**, already running in an isolated worktree with the plan loaded. It executes autonomously, opens a PR, then goes back to you for review.
 
-### 4. Sprint chat executes, opens PR, updates `.sprint-orchestrator/state.md`
+That's it. Full walkthrough: [docs/tutorial-getting-started.md](docs/tutorial-getting-started.md).
 
-### 5. (Optional) Advanced workflows kick in:
+---
 
-- **Adversarial review** — 3rd Claude reviews PR adversarially
-- **Preview validation** — GitHub Action deploys preview + runs Playwright
-- **Capture learnings** — after deploy, propose bug patterns to add to skill
+# Technical summary
 
-## Multi-IDE support
+For those who want to understand the architecture before installing.
 
-The dispatch script auto-detects your environment and adapts:
+## How it works under the hood
 
-| Environment | Dispatch behavior |
-|---|---|
-| **Claude Code standalone** (Terminal/iTerm) | `claude-cli://` URL scheme opens new window with prompt |
-| **Cursor** | Opens worktree in Cursor + copies prompt → press ⌘L for new chat |
-| **VS Code** + Claude extension | Opens worktree in VS Code + copies prompt → "Claude: New Chat" command |
-| **Antigravity** (Google) | Copies prompt + instruction + working dir |
-| **Windsurf** (Codeium) | Opens worktree in Windsurf + copies prompt → new Cascade chat |
-| **Others** | Pure clipboard + temp file with prompt |
-
-Override per-project via `dispatch.method` in profile.
-
-## How it differs from alternatives
-
-| Approach | Trade-off |
-|---|---|
-| **Single long chat** | Context bloat, no parallelism, no memory across sprints |
-| **`superpowers:executing-plans`** | Great for executing a known plan in a single session; doesn't orchestrate multi-sprint flows |
-| **Plain TODO list / Notion** | No learned anti-patterns; no automation around dispatch + review |
-| **This skill** | Multi-chat workflow, addon-modular, state-persistent, validated in production |
-
-## Architecture
+The skill is structured as **modular markdown** that Claude reads on demand:
 
 ```
 sprint-orchestrator/
-├── core/             # always loaded — workflow, multi-agent, conventional commits, anti-patterns, adversarial-review
-├── addons/           # loaded on-demand based on project profile
-│   ├── postgres/
-│   ├── nextjs/
-│   ├── multi-tenant/
-│   ├── monorepo/
-│   ├── coolify-ssh/
-│   ├── github-actions/    # includes preview-validation/ subsystem
-│   ├── e2e-validation/    # Playwright + Chrome DevTools + Chrome extension
-│   ├── legalese/          # content-filter workarounds for LICENSE/CoC
-│   ├── hono/
-│   ├── nginx/
-│   └── docs-public/
-├── templates/
-│   ├── plan/         # by sprint type: feature, bugfix, refactor, migration, infra
-│   └── prompt-dispatch.md
-├── checklists/       # pre-dispatch, post-pr-review, deploy-prod, capture-learnings
-├── scripts/          # init.sh, create-worktree.sh (multi-IDE)
-└── examples/         # reference profiles
+├── SKILL.md             # entry point — Claude always reads this
+├── core/                # workflow + universal anti-patterns + commits style
+├── addons/              # stack-specific (loaded only if your profile activates them)
+├── templates/           # plan templates by type, dispatch prompt, memory
+├── checklists/          # pre-dispatch, post-pr-review, deploy-prod, capture-learnings
+└── scripts/             # init.sh, create-worktree.sh (multi-IDE dispatch)
 ```
 
-## Configuration
+When you invoke the skill in Claude Code:
 
-Project consumer creates `.sprint-orchestrator.yml` (via `init.sh`):
+1. Claude reads `.sprint-orchestrator.yml` from your project
+2. Loads `core/` (universal stuff)
+3. Loads only the `addons/` your project uses (e.g. `postgres`, `nextjs`)
+4. Reaches for templates/checklists just-in-time per phase
+
+Result: **~6-12k tokens of context** even with all addons active.
+
+## The 4-phase workflow
+
+```
+┌─────────────────────────────────┐
+│  ORCHESTRATOR CHAT (you stay)   │
+│  1. PLAN — brainstorm + plan    │
+│  2. DISPATCH — create worktree  │
+│              + open new chat    │
+└─────────────────────────────────┘
+              ↓
+┌─────────────────────────────────┐
+│  SPRINT CHAT (new Claude)       │
+│  3. EXECUTE — read plan, code,  │
+│     test, open PR, update state │
+└─────────────────────────────────┘
+              ↓
+┌─────────────────────────────────┐
+│  BACK TO ORCHESTRATOR           │
+│  4. REVIEW + DEPLOY             │
+│     (with optional auto-checks) │
+└─────────────────────────────────┘
+```
+
+## Configuration (one file per project)
+
+`.sprint-orchestrator.yml` at your project root (generated by `init.sh`):
 
 ```yaml
 version: 1
@@ -178,72 +196,76 @@ paths:
 addons: [postgres, nextjs, e2e-validation, github-actions]
 
 dispatch:
-  method: auto      # auto-detect IDE | claude-cli | cursor | vscode | antigravity | windsurf | clipboard-only
+  method: auto      # auto-detect IDE (Cursor, VS Code, Claude Code, etc.)
 
 notifications:
-  github_assignee: my-username
+  github_assignee: my-username       # auto-assigned on PR
   github_label: ready-for-review
 
 # Advanced workflows (opt-in)
 adversarial_review:
-  enabled: true
-  skip_types: [infra]
+  enabled: true                       # 3rd Claude reviews PRs adversarially
   reviewer_model: sonnet
-  max_comments: 8
 
 github-actions:
-  preview_validation: true
-  preview_platform: vercel  # vercel | fly | railway | coolify | generic
+  preview_validation: true            # preview deploy + auto Playwright on PR
+  preview_platform: vercel            # vercel | fly | railway | coolify | generic
 ```
-
-Full schema in [CHANGELOG.md](CHANGELOG.md).
 
 ## Advanced workflows
 
+Three opt-in workflows that elevate the basic flow:
+
 ### 🤖 Adversarial review
 
-When sprint chat opens a PR, a **3rd isolated Claude** is dispatched as adversarial reviewer:
+When the sprint chat opens a PR, a **3rd isolated Claude** is dispatched as reviewer with an explicit prompt: *"find problems the implementer missed."* It posts comments via `gh pr review`. You become **arbiter**, not line-by-line reviewer.
 
-- Has no context of the implementation
-- Receives only the PR diff + original plan
-- Has explicit prompt to **find problems** (not approve)
-- Posts comments via `gh pr review`
-- You become arbiter, not reviewer
-
-See [`core/adversarial-review.md`](core/adversarial-review.md).
+→ [`core/adversarial-review.md`](core/adversarial-review.md)
 
 ### 🚀 Preview deploy + auto-validation
 
-GitHub Action workflows for Vercel/Fly/Railway/Coolify:
+GitHub Action templates for Vercel/Fly/Railway/Coolify. On PR open: spins up preview deploy, runs Playwright against the preview URL, posts a structured PR comment with PASS/FAIL + screenshots. Orchestrator wakes up via GitHub notification — **no polling**.
 
-1. PR opens → spins up preview deploy
-2. Runs Playwright against preview URL
-3. Posts structured PR comment with PASS/FAIL + screenshots
-4. Applies `auto-validated` or `needs-fix` label
-5. Orchestrator wakes up via GitHub notification (no polling)
-
-See [`addons/github-actions/preview-validation/`](addons/github-actions/preview-validation/).
+→ [`addons/github-actions/preview-validation/`](addons/github-actions/preview-validation/)
 
 ### 🧠 Capture learnings
 
-After each deploy, orchestrator proactively triages `fix:` commits and proposes new bug patterns to add to addon-specific files. Skill evolves with use.
+After each deploy, the orchestrator triages `fix:` commits from the sprint and proposes new bug patterns to add to addon files. The skill **evolves with use** instead of staying static.
 
-See [`checklists/capture-learnings.md`](checklists/capture-learnings.md).
+→ [`checklists/capture-learnings.md`](checklists/capture-learnings.md)
 
-## Validated patterns
+## Multi-IDE support
 
-This skill grew from concrete production usage. Bug patterns (Postgres GRANTs, Next.js SSR fetch, Hono middleware leakage, etc.) are documented per addon. Workflow phases (PLAN → DISPATCH → EXECUTE → REVIEW+DEPLOY) and anti-patterns are battle-tested.
+The dispatch script **auto-detects your environment** and adapts:
 
-See [`examples/superdb-profile.yml`](examples/superdb-profile.yml) for a complete real-world profile.
+| Environment | Behavior |
+|---|---|
+| **Claude Code standalone** (Terminal/iTerm) | `claude-cli://` URL scheme opens new window with prompt pre-loaded |
+| **Cursor** | Opens worktree in Cursor + copies prompt → press ⌘L for new chat |
+| **VS Code** + Claude extension | Opens worktree in VS Code + copies prompt → "Claude: New Chat" |
+| **Antigravity** (Google) | Copies prompt + instruction + working dir |
+| **Windsurf** (Codeium) | Opens worktree in Windsurf + copies prompt → new Cascade chat |
+| **Others** | Pure clipboard + temp file with prompt |
+
+Override per-project via `dispatch.method` in profile.
+
+## How it differs from alternatives
+
+| Approach | Trade-off |
+|---|---|
+| **Single long chat** | Context bloat, no parallelism, no memory across sprints |
+| **`superpowers:executing-plans`** | Great for executing a known plan in one session; doesn't orchestrate multi-sprint flows |
+| **Plain TODO list / Notion** | No learned anti-patterns; no automation around dispatch + review |
+| **This skill** | Multi-chat workflow, addon-modular, state-persistent, validated in production |
 
 ## Status
 
-**v1.0** of the redesign (current): foundation + 3 advanced workflows.
+**v1.0.1** (current): foundation + 3 advanced workflows + one-liner installer.
 
 **Roadmap (v2.0):**
 
-- Bug patterns split per addon (currently most are placeholders)
-- Additional example profiles (Next.js+Vercel, Django, simple monolith)
+- Bug patterns split per addon (most are placeholders right now — biggest gap)
+- More example profiles (Next.js+Vercel, Django, simple monolith)
 - Cleanup scripts (`cleanup-merged.sh`, `list-sprints.sh`)
 - Sprint stuck recovery checklist
 - Kickoff template for new projects
@@ -251,19 +273,17 @@ See [`examples/superdb-profile.yml`](examples/superdb-profile.yml) for a complet
 
 ## Contributing
 
-PRs welcome! Especially:
+The most valuable contributions:
 
-- **New addons** for your stack (Rails, Django, Spring, Go services, etc.)
-- **More example profiles**
-- **Bug patterns** from your own production lessons
-- **Translations** of this README
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+- 🧠 **Bug patterns** from your real production debugging → see [bug-pattern issue template](.github/ISSUE_TEMPLATE/bug-pattern.md)
+- 🧩 **New addons** for your stack (Rails, Django, Spring, Go, etc.) → see [CONTRIBUTING.md](CONTRIBUTING.md)
+- 📋 **Example profiles** in `examples/`
+- 🌍 **Translations** of this README
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Fork freely.
 
-## Acknowledgments
+## Origin
 
-Built on top of [Anthropic's Claude Code](https://claude.com/claude-code) and the [superpowers](https://github.com/anthropics/superpowers) skill ecosystem. Initial validation in the SuperDB project (Brazilian multi-tenant BaaS).
+Built and validated in 17+ production sprints between May 2026 and the public release. Original validation in the [SuperDB](https://github.com/private/project) project (Brazilian multi-tenant BaaS) — see [`examples/superdb-profile.yml`](examples/superdb-profile.yml) for the canonical real-world profile.

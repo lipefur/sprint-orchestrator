@@ -1,8 +1,9 @@
 # sprint-orchestrator
 
-> Skill portátil de orquestación multi-chat para Claude Code. Validada en 17+ sprints de producción.
+> **Deja de perder contexto en chats largos de Claude.** Construye features grandes sprint por sprint, con memoria persistente, ejecución paralela y anti-patterns aprendidos.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest](https://img.shields.io/github/v/release/lipefur/sprint-orchestrator?color=blue)](https://github.com/lipefur/sprint-orchestrator/releases)
 [![Status](https://img.shields.io/badge/status-active-success.svg)](#estado)
 [![Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-orange.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -13,113 +14,233 @@
 
 ---
 
-## Qué es
+## 🤔 El problema
 
-Una skill que enseña a Claude Code a orquestar sprints de software entre **múltiples chats**:
+Quieres construir algo grande con Claude. Abres un chat. Le explicas lo que quieres. Claude empieza a codear. Dos horas después:
 
-- Un **chat orquestador** donde haces brainstorming, planeas, revisas y mergeas
-- Uno o más **chats de sprint** instanciados por sprint, ejecutando el plan en paralelo
+- 😵 El chat está enorme. Claude olvidó las decisiones del principio.
+- 🐌 Todo pasa una cosa a la vez, incluso cuando 4 cosas podrían correr en paralelo.
+- 🔁 Explicas las mismas convenciones una y otra vez.
+- 💔 ¿Bugs del sprint pasado? Olvidados. Claude cae en ellos otra vez.
 
-Este patrón evita el context bloat en chats largos y habilita paralelismo real vía multi-agent dispatch.
+**¿Te suena familiar?**
 
-## Por qué existe
+## ✨ La idea
 
-Los chats largos de Claude olvidan contexto. Un chat único para "construir feature X" termina:
+Piensa en construir software como hacer una película:
 
-- Olvidando decisiones tomadas al inicio
-- Serializando trabajo que podría correr en paralelo
-- Mezclando brainstorming con implementación
-- Perdiendo lecciones de sprints anteriores
+| Rol | Quién |
+|---|---|
+| 🎬 **Director** (visión creativa, aprueba cortes) | **Tú** |
+| 📋 **Productor** (planea, revisa, entrega) | **Chat orquestador** (se queda abierto para el proyecto entero) |
+| 🎥 **Equipos de filmación** (cada uno graba una escena) | **Chats de sprint** (uno por feature, creado y descartado) |
 
-La skill separa el chat **estratégico** (tú + orquestador) de los chats de **ejecución** (Claude enfocado en un sprint a la vez), con estado persistente en `state.md` y anti-patterns aprendidos documentados por addon.
+Tú no filmas cada cuadro. Tú **diriges**, el productor **planea y revisa**, los equipos **ejecutan en paralelo**.
 
-## Workflow general
+Eso es. Esa es la skill.
 
-```
-┌─────────────────────────────────┐
-│  CHAT ORQUESTADOR (te quedas)   │
-│  • Brainstorming + plan         │
-│  • Review + merge + deploy      │
-└─────────────────────────────────┘
-              ↓ dispatch vía URL scheme
-┌─────────────────────────────────┐
-│  CHAT DE SPRINT (Claude nuevo)  │
-│  • Lee plan commiteado          │
-│  • Multi-agent paralelo         │
-│  • Abre PR (no mergea)          │
-└─────────────────────────────────┘
-              ↓ PR listo
-       vuelve al orquestador
-```
+## 🎯 Antes / Después
 
-## Quickstart
+| | **Sin esta skill** | **Con esta skill** |
+|---|---|---|
+| **Estructura del chat** | 1 chat gigante que olvida contexto | 1 orquestador + N chats de sprint enfocados |
+| **Decisiones** | Tomadas al inicio, perdidas después | Capturadas en planes, commiteadas en git |
+| **Paralelismo** | Una cosa a la vez | 1-4 agents por sprint, multi-sprint posible |
+| **Memoria entre sprints** | Ninguna | `state.md` + `bug-patterns.md` por addon |
+| **Control de calidad** | Lees cada PR manualmente | Claude adversarial revisa primero, tú arbitras |
+| **Validación** | "Funciona en mi máquina" | GitHub Action hace preview deploy + Playwright automático |
+| **Lecciones aprendidas** | Perdidas en el historial del chat | Capturadas como bug patterns después de cada deploy |
 
-### 1. Instala la skill (one-liner)
+## 👥 Para quién es esta skill
+
+- **Devs usando Claude Code todos los días** en proyectos reales (no solo demos)
+- **Founders solo / indie hackers** construyendo productos multi-feature
+- **Equipos pequeños** que quieren workflow estructurado con IA
+- **Quienes tienen múltiples repos** queriendo proceso consistente entre ellos
+
+**No es para:** scripts de un solo uso, prototipos descartables, "solo arregla este typo". Para eso, usa Claude directamente.
+
+## 🚀 Instalación (1 comando)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
 ```
 
-El installer:
-- Verifica dependencias (`git`, `bash`, `gh`, `yq`, `python3`)
-- Clona a `~/.claude/skills/sprint-orchestrator/`
-- Muestra próximos pasos
+El installer verifica dependencias, clona la skill a `~/.claude/skills/sprint-orchestrator/` y muestra próximos pasos.
 
-Install manual (si prefieres revisar antes):
+<details>
+<summary>Otros métodos de instalación (manual / revisar antes / ubicación custom)</summary>
+
+**Revisar el installer antes:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh -o /tmp/install.sh
+less /tmp/install.sh        # inspecciona
+bash /tmp/install.sh
+```
+
+**Clone directo (sin installer):**
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
 ```
 
-Actualizar después:
+**Ubicación custom:**
+
+```bash
+SPRINT_ORCHESTRATOR_DIR=/custom/path bash install.sh
+```
+
+**Actualizar después:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash -s -- update
 ```
 
-### 2. Inicializa en tu proyecto
+</details>
+
+## 📖 Quickstart (3 pasos)
+
+### 1. Setup del proyecto (una vez)
 
 ```bash
 cd path/a/tu/proyecto
 bash ~/.claude/skills/sprint-orchestrator/scripts/init.sh
 ```
 
-El script va a:
+El script inspecciona tu repo, detecta tu stack (¿Postgres? ¿Next.js? ¿Monorepo?), pregunta algunas cosas y escribe `.sprint-orchestrator.yml`.
 
-- Inspeccionar tu repo (`package.json`, `docker-compose.yml`, `next.config.*`, `vercel.json`, `migrations/`, etc.)
-- Detectar addons aplicables (`postgres`, `nextjs`, `monorepo`, etc.)
-- Preguntar lo que no pudo inferir (deploy method, comando smoke)
-- Escribir `.sprint-orchestrator.yml` en la raíz del repo
+### 2. Planear un sprint
 
-### 3. Empieza un sprint
+Abre Claude Code en tu proyecto. Di:
 
-En Claude Code, en el chat orquestador de tu proyecto:
+> "Vamos a planear sprint 1 — implementar login con OAuth"
 
-> "Plan sprint 1 — implementar login con OAuth"
+Claude hace brainstorming contigo, escribe un plan detallado, commitea en `main`.
 
-Claude hace brainstorming contigo, escribe el plan, commitea en main. Después:
+### 3. Dispatchar el sprint
 
 ```bash
 bash ~/.claude/skills/sprint-orchestrator/scripts/create-worktree.sh 1 oauth-login
 ```
 
-Esto abre una nueva ventana Claude Code vía URL scheme `claude-cli://`, ya corriendo en el worktree con el plan como prompt inicial.
+Una **nueva ventana de Claude Code abre**, ya corriendo en un worktree aislado con el plan cargado. Ejecuta autónomamente, abre PR, y vuelve a ti para revisar.
 
-### 4. Chat de sprint ejecuta, abre PR, actualiza `.sprint-orchestrator/state.md`
+Es todo. Walkthrough completo: [docs/tutorial-getting-started.md](docs/tutorial-getting-started.md).
 
-### 5. (Opcional) Workflows avanzados se activan:
+---
 
-- **Adversarial review** — 3er Claude revisa el PR adversarialmente
-- **Preview validation** — GitHub Action hace deploy preview + corre Playwright
-- **Capture learnings** — post-deploy, propone bug patterns para agregar a la skill
+# Resumen técnico
+
+Para quienes quieren entender la arquitectura antes de instalar.
+
+## Cómo funciona por debajo
+
+La skill está estructurada como **markdown modular** que Claude lee bajo demanda:
+
+```
+sprint-orchestrator/
+├── SKILL.md             # entry point — Claude siempre lee
+├── core/                # workflow + anti-patterns universales + estilo de commits
+├── addons/              # stack-specific (carga solo si el profile activa)
+├── templates/           # templates de plan por tipo, prompt dispatch, memory
+├── checklists/          # pre-dispatch, post-pr-review, deploy-prod, capture-learnings
+└── scripts/             # init.sh, create-worktree.sh (multi-IDE dispatch)
+```
+
+Cuando invocas la skill en Claude Code:
+
+1. Claude lee `.sprint-orchestrator.yml` de tu proyecto
+2. Carga `core/` (universal)
+3. Carga solo los `addons/` que tu proyecto usa (ej. `postgres`, `nextjs`)
+4. Consulta templates/checklists just-in-time por fase
+
+Resultado: **~6-12k tokens de contexto** incluso con todos los addons activos.
+
+## El workflow en 4 fases
+
+```
+┌─────────────────────────────────┐
+│  CHAT ORQUESTADOR (te quedas)   │
+│  1. PLAN — brainstorm + plan    │
+│  2. DISPATCH — crea worktree    │
+│              + abre chat nuevo  │
+└─────────────────────────────────┘
+              ↓
+┌─────────────────────────────────┐
+│  CHAT DE SPRINT (Claude nuevo)  │
+│  3. EXECUTE — lee plan, codea,  │
+│     testea, abre PR, update     │
+└─────────────────────────────────┘
+              ↓
+┌─────────────────────────────────┐
+│  VUELVE AL ORQUESTADOR          │
+│  4. REVIEW + DEPLOY             │
+│     (con checks automáticos)    │
+└─────────────────────────────────┘
+```
+
+## Configuración (un archivo por proyecto)
+
+`.sprint-orchestrator.yml` en la raíz del proyecto (generado por `init.sh`):
+
+```yaml
+version: 1
+project_name: mi-app
+default_branch: main
+
+paths:
+  plans: docs/superpowers/plans
+  worktrees: .claude/worktrees
+
+addons: [postgres, nextjs, e2e-validation, github-actions]
+
+dispatch:
+  method: auto      # auto-detect IDE (Cursor, VS Code, Claude Code, etc.)
+
+notifications:
+  github_assignee: mi-username       # auto-asignado en el PR
+  github_label: ready-for-review
+
+# Workflows avanzados (opt-in)
+adversarial_review:
+  enabled: true                       # 3er Claude revisa PRs adversarialmente
+  reviewer_model: sonnet
+
+github-actions:
+  preview_validation: true            # preview deploy + Playwright auto en PR
+  preview_platform: vercel            # vercel | fly | railway | coolify | generic
+```
+
+## Workflows avanzados
+
+Tres workflows opt-in que elevan el flujo básico:
+
+### 🤖 Adversarial review
+
+Cuando el chat de sprint abre PR, un **3er Claude aislado** es dispatcheado como reviewer con prompt explícito: *"encuentra problemas que el implementer pasó por alto."* Postea comments vía `gh pr review`. Te conviertes en **árbitro**, no reviewer línea por línea.
+
+→ [`core/adversarial-review.md`](core/adversarial-review.md)
+
+### 🚀 Preview deploy + auto-validation
+
+Templates de GitHub Action para Vercel/Fly/Railway/Coolify. Cuando PR abre: levanta preview deploy, corre Playwright contra URL preview, postea comment estructurado con PASS/FAIL + screenshots. Orquestador despierta vía GitHub notification — **sin polling**.
+
+→ [`addons/github-actions/preview-validation/`](addons/github-actions/preview-validation/)
+
+### 🧠 Capture learnings
+
+Después de cada deploy, el orquestador triagia commits `fix:` del sprint y propone nuevos bug patterns para agregar a los addons. La skill **evoluciona con el uso** en lugar de quedarse estática.
+
+→ [`checklists/capture-learnings.md`](checklists/capture-learnings.md)
 
 ## Soporte multi-IDE
 
-El script de dispatch detecta tu entorno automáticamente y se adapta:
+El script de dispatch **detecta tu entorno automáticamente** y se adapta:
 
-| Entorno | Comportamiento del dispatch |
+| Entorno | Comportamiento |
 |---|---|
-| **Claude Code standalone** (Terminal/iTerm) | URL scheme `claude-cli://` abre nueva ventana con prompt |
+| **Claude Code standalone** (Terminal/iTerm) | URL scheme `claude-cli://` abre nueva ventana con prompt pre-cargado |
 | **Cursor** | Abre worktree en Cursor + copia prompt → presiona ⌘L para nueva chat |
 | **VS Code** + Claude extension | Abre worktree en VS Code + copia prompt → comando "Claude: New Chat" |
 | **Antigravity** (Google) | Copia prompt + instrucción + working dir |
@@ -137,113 +258,14 @@ Sobrescribe por proyecto vía `dispatch.method` en el profile.
 | **TODO list / Notion** | Sin anti-patterns aprendidos; sin automatización de dispatch + review |
 | **Esta skill** | Workflow multi-chat, addon-modular, estado persistente, validado en producción |
 
-## Arquitectura
-
-```
-sprint-orchestrator/
-├── core/             # siempre cargado — workflow, multi-agent, conventional commits, anti-patterns, adversarial-review
-├── addons/           # cargados bajo demanda vía profile
-│   ├── postgres/
-│   ├── nextjs/
-│   ├── multi-tenant/
-│   ├── monorepo/
-│   ├── coolify-ssh/
-│   ├── github-actions/    # incluye subsystem preview-validation/
-│   ├── e2e-validation/    # Playwright + Chrome DevTools + Chrome extension
-│   ├── legalese/          # workarounds de content filter para LICENSE/CoC
-│   ├── hono/
-│   ├── nginx/
-│   └── docs-public/
-├── templates/
-│   ├── plan/         # por tipo de sprint: feature, bugfix, refactor, migration, infra
-│   └── prompt-dispatch.md
-├── checklists/       # pre-dispatch, post-pr-review, deploy-prod, capture-learnings
-├── scripts/          # init.sh, create-worktree.sh (multi-IDE)
-└── examples/         # profiles de referencia
-```
-
-## Configuración
-
-Proyecto consumidor crea `.sprint-orchestrator.yml` (vía `init.sh`):
-
-```yaml
-version: 1
-project_name: mi-app
-default_branch: main
-
-paths:
-  plans: docs/superpowers/plans
-  worktrees: .claude/worktrees
-
-addons: [postgres, nextjs, e2e-validation, github-actions]
-
-dispatch:
-  method: auto      # auto-detect IDE | claude-cli | cursor | vscode | antigravity | windsurf | clipboard-only
-
-notifications:
-  github_assignee: mi-username
-  github_label: ready-for-review
-
-# Workflows avanzados (opt-in)
-adversarial_review:
-  enabled: true
-  skip_types: [infra]
-  reviewer_model: sonnet
-  max_comments: 8
-
-github-actions:
-  preview_validation: true
-  preview_platform: vercel  # vercel | fly | railway | coolify | generic
-```
-
-Schema completo en [CHANGELOG.md](CHANGELOG.md).
-
-## Workflows avanzados
-
-### 🤖 Adversarial review
-
-Cuando el chat de sprint abre un PR, un **3er Claude aislado** es dispatcheado como reviewer adversarial:
-
-- Sin contexto de la implementación
-- Recibe solo el diff del PR + plan original
-- Tiene prompt explícito para **encontrar problemas** (no aprobar)
-- Postea comentarios vía `gh pr review`
-- Tú te conviertes en árbitro, no reviewer
-
-Ver [`core/adversarial-review.md`](core/adversarial-review.md).
-
-### 🚀 Preview deploy + auto-validation
-
-Workflows GitHub Actions para Vercel/Fly/Railway/Coolify:
-
-1. PR abre → levanta deploy preview
-2. Corre Playwright contra URL preview
-3. Postea comment estructurado en PR con PASS/FAIL + screenshots
-4. Aplica label `auto-validated` o `needs-fix`
-5. Orquestador despierta vía GitHub notification (sin polling)
-
-Ver [`addons/github-actions/preview-validation/`](addons/github-actions/preview-validation/).
-
-### 🧠 Capture learnings
-
-Después de cada deploy, el orquestador proactivamente triagia commits `fix:` y propone nuevos bug patterns para agregar a los archivos por addon. La skill evoluciona con el uso.
-
-Ver [`checklists/capture-learnings.md`](checklists/capture-learnings.md).
-
-## Patrones validados
-
-Esta skill creció de uso real en producción. Bug patterns (GRANTs de Postgres, SSR fetch en Next.js, leak de middleware en Hono, etc.) están documentados por addon. Las fases del workflow (PLAN → DISPATCH → EXECUTE → REVIEW+DEPLOY) y anti-patterns están battle-tested.
-
-Ver [`examples/superdb-profile.yml`](examples/superdb-profile.yml) para un profile real completo.
-
 ## Estado
 
-**v1.0** del redesign (actual): fundación + 3 workflows avanzados.
+**v1.0.1** (actual): fundación + 3 workflows avanzados + installer one-liner.
 
 **Roadmap (v2.0):**
 
-- Bug patterns split por addon (actualmente la mayoría son placeholders)
-- Profiles de ejemplo adicionales (Next.js+Vercel, Django, monolito simple)
+- Bug patterns split por addon (la mayoría son placeholders hoy — gap más grande)
+- Más profiles de ejemplo (Next.js+Vercel, Django, monolito simple)
 - Scripts de cleanup (`cleanup-merged.sh`, `list-sprints.sh`)
 - Checklist de recovery para sprint atascado
 - Template de kickoff para proyectos nuevos
@@ -251,19 +273,17 @@ Ver [`examples/superdb-profile.yml`](examples/superdb-profile.yml) para un profi
 
 ## Contribuyendo
 
-¡PRs bienvenidos! Especialmente:
+Contribuciones más valiosas:
 
-- **Addons nuevos** para tu stack (Rails, Django, Spring, Go services, etc.)
-- **Más profiles de ejemplo**
-- **Bug patterns** de tus propias lecciones de producción
-- **Traducciones** de este README
-
-Ver [CONTRIBUTING.md](CONTRIBUTING.md).
+- 🧠 **Bug patterns** de tu debugging real en producción → ver [template de issue bug-pattern](.github/ISSUE_TEMPLATE/bug-pattern.md)
+- 🧩 **Addons nuevos** para tu stack (Rails, Django, Spring, Go, etc.) → ver [CONTRIBUTING.md](CONTRIBUTING.md)
+- 📋 **Profiles de ejemplo** en `examples/`
+- 🌍 **Traducciones** de este README
 
 ## Licencia
 
-MIT — ver [LICENSE](LICENSE).
+MIT — ver [LICENSE](LICENSE). Haz fork libremente.
 
-## Agradecimientos
+## Origen
 
-Construido sobre [Claude Code de Anthropic](https://claude.com/claude-code) y el ecosistema de skills [superpowers](https://github.com/anthropics/superpowers). Validación inicial en el proyecto SuperDB (BaaS multi-tenant brasileño).
+Construida y validada en 17+ sprints de producción entre Mayo/2026 y el release público. Validación inicial en el proyecto [SuperDB](https://github.com/private/project) (BaaS multi-tenant brasileño) — ver [`examples/superdb-profile.yml`](examples/superdb-profile.yml) para el profile real canónico.
