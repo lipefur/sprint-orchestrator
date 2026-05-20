@@ -1,0 +1,130 @@
+# Anti-padrões cross-cutting
+
+Bugs e armadilhas que aparecem em **qualquer stack** que adote o workflow de sprints com orquestrador + chats de execução. Aprendidos na dor.
+
+Para anti-padrões stack-specific, ver `addons/<nome>/bug-patterns.md`.
+
+## 1. Hardcoded `localhost:PORT` em código que vai pra container
+
+**Sintoma:** `Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:PORT/...`
+
+**Causa:** dev escreveu fallback `'http://localhost:PORT'` no código, ficou no bundle final ou no service deployed.
+
+**Fix:**
+- Trocar default por URL relativa (`/api/...`) que vai pro mesmo origin
+- Ou passar URL completa via env var, NUNCA hardcoded
+
+---
+
+## 2. Porta de service errada em env vars
+
+**Sintoma:** `ConnectionRefused: http://service:PORT`
+
+**Causa:** env var setada com porta diferente da que o service expõe.
+
+**Como detectar:** `grep -E "EXPOSE|PORT" services/X/Dockerfile` vs env do compose.
+
+**Fix:** sincronizar EXPOSE com env var.
+
+---
+
+## 3. Import named errado de módulo Node
+
+**Sintoma:** `SyntaxError: Export named 'X' not found in module 'node:Y'`
+
+**Causa:** import `{ X } from 'node:Y'` mas o módulo exporta só default ou subset diferente.
+
+**Fix:** verificar exports reais:
+
+```typescript
+// ERRADO
+import { crypto } from 'node:crypto'
+
+// CERTO
+import { randomUUID, createHash } from 'node:crypto'
+```
+
+---
+
+## 4. License/auth crash on boot em CI
+
+**Sintoma:** `Missing required env: X` → service crasha em loop no CI smoke
+
+**Causa:** sistema estrito por design. CI não tem keys reais.
+
+**Fix:** env bypass específica pra teste, **bem documentada como apenas-test**:
+
+```typescript
+if (process.env.APP_TEST_BYPASS_LICENSE === 'true') {
+  return mockClaims;  // só pra teste, NUNCA pra produção
+}
+```
+
+CI workflow seta `<APP>_TEST_BYPASS_<X>=true` no `.env`.
+
+---
+
+## 5. Plano não commitado em main antes do worktree
+
+**Sintoma:** Sprint chat reporta "plano não encontrado" e tenta criar plano novo do zero. Bagunça total.
+
+**Causa:** Orchestrator escreveu plano em working dir do main mas não commitou. Worktree criado a partir do main não tem o plano.
+
+**Fix:** **SEMPRE** commitar plano em main + push ANTES de criar worktree. O script `scripts/create-worktree.sh` valida isso e aborta se plano não tá commitado.
+
+---
+
+## 6. Esquecer de incluir migration nova no CI workflow
+
+**Sintoma:** Migrations estão no PR mas CI ignora. Endpoints novos retornam 500.
+
+**Causa:** Workflow lista migrations a aplicar explicitamente. Sprint adicionou nova mas não atualizou.
+
+**Fix permanente longo-prazo:** trocar lista hardcoded por glob:
+
+```yaml
+for DIR in services/auth/migrations/sprint-*/; do
+  for f in "$DIR"*.sql; do
+    apply "$f"
+  done
+done
+```
+
+**Fix curto-prazo:** orchestrator no `pre-dispatch` check verifica e ADICIONA `sprint-N` ao workflow no MESMO commit que mergeia o sprint anterior.
+
+---
+
+## 7. Sprint chat decidindo trade-off técnico que orchestrator deveria bater
+
+**Sintoma:** Sprint chat acha duas opções equivalentes, escolhe uma silenciosamente, plano fica desalinhado com decisões anteriores.
+
+**Causa:** Plano não cobriu todos os trade-offs. Sprint chat preencheu sozinho.
+
+**Fix preventivo:** plano lista **explicitamente** decisões abertas em seção "Decisões abertas (user decide)". Sprint chat **NÃO** pode resolver essas — para e reporta.
+
+**Fix reativo:** se aconteceu, documenta decisão em handoff doc + atualiza plano via commit no main (sprint chat puxa).
+
+---
+
+## 8. Smoke local passa, smoke prod falha
+
+**Sintoma:** Sprint chat reporta `bin/smoke-local.sh` verde. PR mergeado. Em prod, smoke E2E quebra.
+
+**Causa:** Smoke local não cobre o que muda em prod (URL absoluta, container vs localhost, role diferente, etc.).
+
+**Fix preventivo:** smoke local **DEVE** rodar contra config tipo-prod (container-based, role não-superuser, URLs absolutas). Documenta na própria `bin/smoke-local.sh` que ela aproxima prod.
+
+**Fix reativo:** depois do bug em prod, ADICIONA o cenário ao smoke local. Próximo sprint não cai no mesmo.
+
+---
+
+## Como adicionar caso novo
+
+Após cada deploy debug, se descobriu padrão **cross-cutting** (aparece em mais de uma stack):
+
+1. Identifica sintoma (mensagem de erro exata)
+2. Causa raiz (1 frase)
+3. Fix preventivo + reativo
+4. Adiciona seção neste arquivo
+
+Padrões stack-specific (Postgres, Next.js, Coolify, etc.) vão em `addons/<nome>/bug-patterns.md`.

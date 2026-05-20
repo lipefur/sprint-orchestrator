@@ -1,0 +1,162 @@
+# Sprint Orchestrator — Preview Deploy + Auto-Validation (Vercel)
+#
+# Copie este arquivo pra `.github/workflows/sprint-preview-validation.yml`
+# Vercel já cria preview deploy automaticamente — este workflow espera o preview
+# ficar pronto, roda Playwright contra ele, e posta comment estruturado.
+#
+# Secrets necessários:
+#   VERCEL_TOKEN              — token de API do Vercel
+#   VERCEL_PROJECT_ID         — ID do projeto no Vercel
+#   VERCEL_ORG_ID             — ID da org no Vercel
+
+name: Sprint Preview Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  validate:
+    # Só roda em branches que começam com sprint- (evita custo em PRs casuais)
+    if: startsWith(github.head_ref, 'sprint-')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Wait for Vercel preview deployment
+        id: vercel-preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 300
+          check_interval: 10
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests against preview
+        id: playwright
+        env:
+          BASE_URL: ${{ steps.vercel-preview.outputs.url }}
+        run: |
+          # Roda apenas os fluxos declarados no plano do sprint
+          # (test pattern: tests/sprint-*.spec.ts ou similar)
+          npx playwright test --reporter=json > /tmp/playwright-results.json
+        continue-on-error: true
+
+      - name: Parse results and build comment
+        id: build-comment
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('/tmp/playwright-results.json', 'utf8'));
+
+          const allPassed = results.suites.every(s =>
+            s.specs.every(spec => spec.ok)
+          );
+          const status = allPassed ? 'PASS' : 'FAIL';
+          const emoji = allPassed ? '✅' : '❌';
+          const totalSec = Math.round(results.stats.duration / 1000);
+
+          const rows = results.suites.flatMap(s => s.specs.map(spec => {
+            const icon = spec.ok ? '✅' : '❌';
+            const sec = (spec.tests[0]?.results[0]?.duration / 1000).toFixed(1) || '?';
+            return `| ${spec.title} | ${icon} | ${sec}s |`;
+          })).join('\n');
+
+          const consoleErrors = results.suites
+            .flatMap(s => s.specs)
+            .flatMap(sp => sp.tests[0]?.results[0]?.attachments || [])
+            .filter(a => a.name === 'console-error')
+            .map(a => a.body || '')
+            .join('\n') || 'Nenhum';
+
+          const previewUrl = process.env.PREVIEW_URL;
+          const runUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+          const body = `<!-- SPRINT-ORCHESTRATOR-AUTO-VALIDATION-START -->
+          ## Auto-Validation Result
+
+          **Preview URL:** ${previewUrl}
+          **Status:** ${emoji} ${status}
+          **Duration:** ${totalSec}s
+          **Run ID:** ${process.env.GITHUB_RUN_ID}
+
+          ### Playwright fluxos
+
+          | Fluxo | Status | Tempo |
+          |---|---|---|
+          ${rows}
+
+          ### Console errors (críticos)
+
+          \`\`\`
+          ${consoleErrors}
+          \`\`\`
+
+          ### Logs completos
+
+          [GitHub Action run](${runUrl})
+
+          <!-- SPRINT-ORCHESTRATOR-AUTO-VALIDATION-END -->`;
+
+          fs.writeFileSync('/tmp/comment-body.md', body);
+          console.log(`status=${status}`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `status=${status}\n`);
+          EOF
+        env:
+          PREVIEW_URL: ${{ steps.vercel-preview.outputs.url }}
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-includes: SPRINT-ORCHESTRATOR-AUTO-VALIDATION-START
+
+      - name: Upsert comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: /tmp/comment-body.md
+          edit-mode: replace
+
+      - name: Apply label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.build-comment.outputs.status }}';
+            const label = status === 'PASS' ? 'auto-validated' : 'needs-fix';
+            const remove = status === 'PASS' ? 'needs-fix' : 'auto-validated';
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });
+
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: remove
+              });
+            } catch (e) { /* label may not exist */ }

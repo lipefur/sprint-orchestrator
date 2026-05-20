@@ -1,0 +1,10 @@
+# Test artifacts gerados por init.sh em projeto-teste
+.sprint-orchestrator-test/
+
+# Macros locais não-portáveis
+.DS_Store
+*.swp
+*~
+
+# Profile gerado durante testes locais
+test-profile.yml

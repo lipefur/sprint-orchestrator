@@ -1,0 +1,98 @@
+# Sprint Orchestrator — Preview Deploy + Auto-Validation (Generic)
+#
+# Use este quando sua plataforma de deploy não tem template específico.
+# Você customiza como sobe o preview deploy. O resto (Playwright + comment) é igual.
+#
+# Substitui os passos "Wait for ... preview" e "deploy preview" pela lógica
+# da sua plataforma (Fly, Railway, Coolify, AWS, Docker próprio, etc.).
+#
+# Secrets necessários:
+#   PREVIEW_DEPLOY_TOKEN      — token da plataforma (renomear conforme apropriado)
+
+name: Sprint Preview Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  validate:
+    if: startsWith(github.head_ref, 'sprint-')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      # ───────────────────────────────────────────────────────────────────
+      # CUSTOMIZE THIS BLOCK — sobe preview deploy na sua plataforma
+      # ───────────────────────────────────────────────────────────────────
+      - name: Deploy preview (CUSTOMIZE)
+        id: deploy-preview
+        env:
+          PREVIEW_DEPLOY_TOKEN: ${{ secrets.PREVIEW_DEPLOY_TOKEN }}
+        run: |
+          # Exemplo Fly.io:
+          #   flyctl deploy --app my-app-pr-${{ github.event.pull_request.number }} \
+          #     --image registry.fly.io/my-app:$(git rev-parse --short HEAD)
+          #   echo "url=https://my-app-pr-${{ github.event.pull_request.number }}.fly.dev" >> $GITHUB_OUTPUT
+          #
+          # Exemplo Coolify:
+          #   curl -X POST -H "Authorization: Bearer $PREVIEW_DEPLOY_TOKEN" \
+          #     "https://coolify.example.com/api/v1/deploy?branch=${{ github.head_ref }}"
+          #   # aguarda preview ficar pronto
+          #   echo "url=https://${{ github.head_ref }}.preview.example.com" >> $GITHUB_OUTPUT
+          #
+          # Por enquanto, falha pra forçar customização:
+          echo "❌ Customize the 'Deploy preview' step in this workflow"
+          exit 1
+      # ───────────────────────────────────────────────────────────────────
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Health check preview
+        env:
+          BASE_URL: ${{ steps.deploy-preview.outputs.url }}
+        run: |
+          for i in {1..30}; do
+            if curl -sf "$BASE_URL/" >/dev/null 2>&1; then
+              echo "Preview ready at $BASE_URL"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run Playwright tests against preview
+        id: playwright
+        env:
+          BASE_URL: ${{ steps.deploy-preview.outputs.url }}
+        run: |
+          npx playwright test --reporter=json > /tmp/playwright-results.json
+        continue-on-error: true
+
+      - name: Parse results and build comment
+        id: build-comment
+        env:
+          PREVIEW_URL: ${{ steps.deploy-preview.outputs.url }}
+        run: |
+          # Mesmo bloco do template vercel.yml — copia e cola
+          # (Ver vercel.yml pra implementação completa)
+          echo "TODO: copiar parser do vercel.yml"
+
+      - name: Upsert comment + label
+        # idem ao vercel.yml
+        run: echo "TODO: copiar do vercel.yml"
