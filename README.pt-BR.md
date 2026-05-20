@@ -6,8 +6,10 @@
 [![Status](https://img.shields.io/badge/status-active-success.svg)](#status)
 [![Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-orange.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Discussions](https://img.shields.io/badge/💬-Discussions-blueviolet)](https://github.com/lipefur/sprint-orchestrator/discussions)
 
 **🌍 Idiomas:** [English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md)
+**📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
 
 ---
 
