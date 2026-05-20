@@ -110,7 +110,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Is there a roadmap?
 
-Yes — see "Status" section in [README.md](../README.md) and [Ideas discussions](https://github.com/lipefur/sprint-orchestrator/discussions/categories/ideas).
+Yes — see "Status" section in [README.en.md](../README.en.md) (English) or [README.md](../README.md) (Português) and [Ideas discussions](https://github.com/lipefur/sprint-orchestrator/discussions/categories/ideas).
 
 ## Where did this come from?
 

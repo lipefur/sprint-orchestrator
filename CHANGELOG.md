@@ -5,6 +5,21 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased] — v1.0.2 (Portuguese as primary)
+
+### Changed
+
+- **Portuguese is now the primary README** (project author's native language)
+  - `README.md` → Portuguese (was English)
+  - `README.en.md` → English (was `README.md`)
+  - `README.es.md` → unchanged
+- Cross-language switcher in all 3 READMEs updated: `[Português](README.md) · [English](README.en.md) · [Español](README.es.md)`
+- `docs/faq.md` link updated to point to `README.en.md` for English readers
+
+### Rationale
+
+GitHub renders `README.md` by default. Putting Portuguese there reflects the project's origin (Brazilian dev community, validated in SuperDB) without losing English/Spanish accessibility (one click away from the language switcher).
+
 ## [Unreleased] — v1.0.1 (installer)
 
 ### Added

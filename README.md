@@ -1,6 +1,6 @@
 # sprint-orchestrator
 
-> **Stop losing context in long Claude chats.** Build big features sprint-by-sprint with persistent memory, parallel execution, and learned anti-patterns.
+> **Pare de perder contexto em chats longos com Claude.** Construa features grandes em sprints, com memória persistente, execução paralela e anti-padrões aprendidos.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Latest](https://img.shields.io/github/v/release/lipefur/sprint-orchestrator?color=blue)](https://github.com/lipefur/sprint-orchestrator/releases)
@@ -9,89 +9,89 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Discussions](https://img.shields.io/badge/💬-Discussions-blueviolet)](https://github.com/lipefur/sprint-orchestrator/discussions)
 
-**🌍 Languages:** [English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md)
+**🌍 Idiomas:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 **📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
 
 ---
 
-## 🤔 The problem
+## 🤔 O problema
 
-You want to build something big with Claude. You start a chat. You explain what you want. Claude starts coding. Two hours later:
+Você quer construir algo grande com Claude. Abre um chat. Explica o que quer. Claude começa a codar. Duas horas depois:
 
-- 😵 The chat is huge. Claude forgot the decisions you made early.
-- 🐌 Everything happens one task at a time, even when 4 things could run in parallel.
-- 🔁 You explain the same conventions over and over.
-- 💔 Bugs from last sprint? Forgotten. Claude makes them again.
+- 😵 O chat tá enorme. Claude esqueceu as decisões que você bateu no início.
+- 🐌 Tudo acontece uma coisa por vez, mesmo quando 4 coisas podiam rodar em paralelo.
+- 🔁 Você explica as mesmas convenções várias vezes.
+- 💔 Bugs do sprint passado? Esquecidos. Claude cai neles de novo.
 
-**Sound familiar?**
+**Conhece essa situação?**
 
-## ✨ The idea
+## ✨ A ideia
 
-Think of building software like making a movie:
+Pensa em construir software como fazer um filme:
 
-| Role | Who |
+| Papel | Quem |
 |---|---|
-| 🎬 **Director** (creative vision, approves cuts) | **You** |
-| 📋 **Production Manager** (plans, reviews, ships) | **Orchestrator chat** (stays open for the project) |
-| 🎥 **Film Crew** (each one shoots one scene) | **Sprint chats** (one per feature, spawned and disposed) |
+| 🎬 **Diretor** (visão criativa, aprova cortes) | **Você** |
+| 📋 **Produtor** (planeja, revisa, entrega) | **Chat orquestrador** (fica aberto pro projeto inteiro) |
+| 🎥 **Equipes de filmagem** (cada uma grava uma cena) | **Chats de sprint** (um por feature, criado e descartado) |
 
-You don't film every frame yourself. You **direct**, the production manager **plans and reviews**, the crews **execute in parallel**.
+Você não filma cada quadro. Você **dirige**, o produtor **planeja e revisa**, as equipes **executam em paralelo**.
 
-That's it. That's the skill.
+É isso. É essa a skill.
 
-## 🎯 Before / After
+## 🎯 Antes / Depois
 
-| | **Without this skill** | **With this skill** |
+| | **Sem essa skill** | **Com essa skill** |
 |---|---|---|
-| **Chat structure** | 1 giant chat that forgets context | 1 orchestrator + N focused sprint chats |
-| **Decisions** | Made early, lost later | Captured in plans, committed to git |
-| **Parallelism** | One thing at a time | 1-4 agents per sprint, multi-sprint possible |
-| **Memory between sprints** | None | `state.md` + `bug-patterns.md` per addon |
-| **Quality control** | You read every PR manually | Adversarial Claude reviews first, you arbitrate |
-| **Validation** | "It works on my machine" | GitHub Action deploys preview + runs Playwright automatically |
-| **Lessons learned** | Lost in chat history | Auto-captured as bug patterns after each deploy |
+| **Estrutura do chat** | 1 chat gigante que esquece contexto | 1 orquestrador + N chats de sprint focados |
+| **Decisões** | Tomadas no início, perdidas depois | Capturadas em planos, commitadas no git |
+| **Paralelismo** | Uma coisa por vez | 1-4 agents por sprint, múltiplos sprints possíveis |
+| **Memória entre sprints** | Nenhuma | `state.md` + `bug-patterns.md` por addon |
+| **Controle de qualidade** | Você lê cada PR manualmente | Claude adversarial revisa primeiro, você arbitra |
+| **Validação** | "Funciona na minha máquina" | GitHub Action faz preview deploy + Playwright automático |
+| **Lições aprendidas** | Perdidas no histórico do chat | Capturadas como bug patterns após cada deploy |
 
-## 👥 Who this is for
+## 👥 Pra quem é essa skill
 
-- **Devs using Claude Code daily** on real projects (not just demos)
-- **Solo founders / indie hackers** building multi-feature products
-- **Small teams** that want structured AI-assisted workflows
-- **Anyone with multiple repos** wanting consistent process across them
+- **Devs usando Claude Code todo dia** em projetos reais (não só demos)
+- **Founders solo / indie hackers** construindo produtos multi-feature
+- **Times pequenos** que querem workflow estruturado com IA
+- **Quem tem múltiplos repos** querendo processo consistente entre eles
 
-**Not for:** one-off scripts, throwaway prototypes, "just fix this typo" tasks. Use Claude directly for those.
+**Não é pra:** scripts de uso único, protótipos descartáveis, "só conserta esse typo". Pra isso, usa Claude direto.
 
-## 🚀 Install (1 command)
+## 🚀 Instalação (1 comando)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
 ```
 
-The installer checks dependencies, clones the skill to `~/.claude/skills/sprint-orchestrator/`, and prints next steps.
+O installer verifica dependências, clona a skill pra `~/.claude/skills/sprint-orchestrator/` e mostra próximos passos.
 
 <details>
-<summary>Other install methods (manual / review-first / custom location)</summary>
+<summary>Outros métodos de instalação (manual / revisar antes / local customizado)</summary>
 
-**Review the installer first:**
+**Revisar o installer antes:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh -o /tmp/install.sh
-less /tmp/install.sh        # inspect it
+less /tmp/install.sh        # inspeciona
 bash /tmp/install.sh
 ```
 
-**Direct clone (skip installer):**
+**Clone direto (sem installer):**
 
 ```bash
 git clone https://github.com/lipefur/sprint-orchestrator.git ~/.claude/skills/sprint-orchestrator
 ```
 
-**Custom location:**
+**Local customizado:**
 
 ```bash
 SPRINT_ORCHESTRATOR_DIR=/custom/path bash install.sh
 ```
 
-**Update later:**
+**Atualizar depois:**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash -s -- update
@@ -99,94 +99,94 @@ curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/in
 
 </details>
 
-## 📖 Quickstart (3 steps)
+## 📖 Quickstart (3 passos)
 
-### 1. Set up your project (once)
+### 1. Setup do projeto (uma vez)
 
 ```bash
-cd path/to/your/project
+cd path/para/seu/projeto
 bash ~/.claude/skills/sprint-orchestrator/scripts/init.sh
 ```
 
-The script inspects your repo, detects your stack (Postgres? Next.js? Monorepo?), asks a few questions, and writes `.sprint-orchestrator.yml`.
+O script inspeciona seu repo, detecta sua stack (Postgres? Next.js? Monorepo?), pergunta umas coisas e escreve `.sprint-orchestrator.yml`.
 
-### 2. Plan a sprint
+### 2. Planejar um sprint
 
-Open Claude Code in your project. Say:
+Abre Claude Code no seu projeto. Diz:
 
-> "Let's plan sprint 1 — implement OAuth login"
+> "Vamos planejar sprint 1 — implementar login com OAuth"
 
-Claude brainstorms with you, writes a detailed plan, commits it to `main`.
+Claude faz brainstorming com você, escreve um plano detalhado, commita em `main`.
 
-### 3. Dispatch the sprint
+### 3. Dispatchar o sprint
 
 ```bash
 bash ~/.claude/skills/sprint-orchestrator/scripts/create-worktree.sh 1 oauth-login
 ```
 
-A **new Claude Code window opens**, already running in an isolated worktree with the plan loaded. It executes autonomously, opens a PR, then goes back to you for review.
+Uma **nova janela do Claude Code abre**, já rodando num worktree isolado com o plano carregado. Executa autonomamente, abre PR, e volta pra você revisar.
 
-That's it. Full walkthrough: [docs/tutorial-getting-started.md](docs/tutorial-getting-started.md).
+É isso. Walkthrough completo: [docs/tutorial-getting-started.md](docs/tutorial-getting-started.md).
 
 ---
 
-# Technical summary
+# Resumo técnico
 
-For those who want to understand the architecture before installing.
+Pra quem quer entender a arquitetura antes de instalar.
 
-## How it works under the hood
+## Como funciona por baixo
 
-The skill is structured as **modular markdown** that Claude reads on demand:
+A skill é estruturada como **markdown modular** que Claude lê sob demanda:
 
 ```
 sprint-orchestrator/
-├── SKILL.md             # entry point — Claude always reads this
-├── core/                # workflow + universal anti-patterns + commits style
-├── addons/              # stack-specific (loaded only if your profile activates them)
-├── templates/           # plan templates by type, dispatch prompt, memory
+├── SKILL.md             # entry point — Claude sempre lê
+├── core/                # workflow + anti-padrões universais + style de commits
+├── addons/              # stack-specific (carrega só se profile ativa)
+├── templates/           # templates de plano por tipo, prompt dispatch, memory
 ├── checklists/          # pre-dispatch, post-pr-review, deploy-prod, capture-learnings
 └── scripts/             # init.sh, create-worktree.sh (multi-IDE dispatch)
 ```
 
-When you invoke the skill in Claude Code:
+Quando você invoca a skill no Claude Code:
 
-1. Claude reads `.sprint-orchestrator.yml` from your project
-2. Loads `core/` (universal stuff)
-3. Loads only the `addons/` your project uses (e.g. `postgres`, `nextjs`)
-4. Reaches for templates/checklists just-in-time per phase
+1. Claude lê `.sprint-orchestrator.yml` do seu projeto
+2. Carrega `core/` (universal)
+3. Carrega só os `addons/` que seu projeto usa (ex: `postgres`, `nextjs`)
+4. Consulta templates/checklists just-in-time por fase
 
-Result: **~6-12k tokens of context** even with all addons active.
+Resultado: **~6-12k tokens de contexto** mesmo com todos os addons ativos.
 
-## The 4-phase workflow
+## O workflow em 4 fases
 
 ```
 ┌─────────────────────────────────┐
-│  ORCHESTRATOR CHAT (you stay)   │
-│  1. PLAN — brainstorm + plan    │
-│  2. DISPATCH — create worktree  │
-│              + open new chat    │
+│  CHAT ORQUESTRADOR (você fica)  │
+│  1. PLAN — brainstorm + plano   │
+│  2. DISPATCH — cria worktree    │
+│              + abre chat novo   │
 └─────────────────────────────────┘
               ↓
 ┌─────────────────────────────────┐
-│  SPRINT CHAT (new Claude)       │
-│  3. EXECUTE — read plan, code,  │
-│     test, open PR, update state │
+│  CHAT DE SPRINT (Claude novo)   │
+│  3. EXECUTE — lê plano, coda,   │
+│     testa, abre PR, update state│
 └─────────────────────────────────┘
               ↓
 ┌─────────────────────────────────┐
-│  BACK TO ORCHESTRATOR           │
+│  VOLTA PRO ORQUESTRADOR         │
 │  4. REVIEW + DEPLOY             │
-│     (with optional auto-checks) │
+│     (com checks automáticos)    │
 └─────────────────────────────────┘
 ```
 
-## Configuration (one file per project)
+## Configuração (um arquivo por projeto)
 
-`.sprint-orchestrator.yml` at your project root (generated by `init.sh`):
+`.sprint-orchestrator.yml` na raiz do projeto (gerado pelo `init.sh`):
 
 ```yaml
 version: 1
-project_name: my-app
+project_name: meu-app
 default_branch: main
 
 paths:
@@ -199,91 +199,91 @@ dispatch:
   method: auto      # auto-detect IDE (Cursor, VS Code, Claude Code, etc.)
 
 notifications:
-  github_assignee: my-username       # auto-assigned on PR
+  github_assignee: meu-username      # auto-assigned no PR
   github_label: ready-for-review
 
-# Advanced workflows (opt-in)
+# Workflows avançados (opt-in)
 adversarial_review:
-  enabled: true                       # 3rd Claude reviews PRs adversarially
+  enabled: true                       # 3º Claude revisa PRs adversarialmente
   reviewer_model: sonnet
 
 github-actions:
-  preview_validation: true            # preview deploy + auto Playwright on PR
+  preview_validation: true            # preview deploy + Playwright auto no PR
   preview_platform: vercel            # vercel | fly | railway | coolify | generic
 ```
 
-## Advanced workflows
+## Workflows avançados
 
-Three opt-in workflows that elevate the basic flow:
+Três workflows opt-in que elevam o fluxo básico:
 
 ### 🤖 Adversarial review
 
-When the sprint chat opens a PR, a **3rd isolated Claude** is dispatched as reviewer with an explicit prompt: *"find problems the implementer missed."* It posts comments via `gh pr review`. You become **arbiter**, not line-by-line reviewer.
+Quando o chat de sprint abre PR, um **3º Claude isolado** é dispatchado como reviewer com prompt explícito: *"encontre problemas que o implementer perdeu."* Posta comments via `gh pr review`. Você vira **arbitrador**, não reviewer linha-por-linha.
 
 → [`core/adversarial-review.md`](core/adversarial-review.md)
 
 ### 🚀 Preview deploy + auto-validation
 
-GitHub Action templates for Vercel/Fly/Railway/Coolify. On PR open: spins up preview deploy, runs Playwright against the preview URL, posts a structured PR comment with PASS/FAIL + screenshots. Orchestrator wakes up via GitHub notification — **no polling**.
+Templates de GitHub Action pra Vercel/Fly/Railway/Coolify. Quando PR abre: sobe preview deploy, roda Playwright contra URL preview, posta comment estruturado com PASS/FAIL + screenshots. Orquestrador acorda via GitHub notification — **sem polling**.
 
 → [`addons/github-actions/preview-validation/`](addons/github-actions/preview-validation/)
 
 ### 🧠 Capture learnings
 
-After each deploy, the orchestrator triages `fix:` commits from the sprint and proposes new bug patterns to add to addon files. The skill **evolves with use** instead of staying static.
+Após cada deploy, orquestrador triagia commits `fix:` do sprint e propõe novos bug patterns pra adicionar nos addons. A skill **evolui com o uso** em vez de ficar estática.
 
 → [`checklists/capture-learnings.md`](checklists/capture-learnings.md)
 
-## Multi-IDE support
+## Suporte multi-IDE
 
-The dispatch script **auto-detects your environment** and adapts:
+O script de dispatch **detecta seu ambiente automaticamente** e adapta:
 
-| Environment | Behavior |
+| Ambiente | Comportamento |
 |---|---|
-| **Claude Code standalone** (Terminal/iTerm) | `claude-cli://` URL scheme opens new window with prompt pre-loaded |
-| **Cursor** | Opens worktree in Cursor + copies prompt → press ⌘L for new chat |
-| **VS Code** + Claude extension | Opens worktree in VS Code + copies prompt → "Claude: New Chat" |
-| **Antigravity** (Google) | Copies prompt + instruction + working dir |
-| **Windsurf** (Codeium) | Opens worktree in Windsurf + copies prompt → new Cascade chat |
-| **Others** | Pure clipboard + temp file with prompt |
+| **Claude Code standalone** (Terminal/iTerm) | URL scheme `claude-cli://` abre nova janela com prompt pré-carregado |
+| **Cursor** | Abre worktree no Cursor + copia prompt → ⌘L pra nova chat |
+| **VS Code** + Claude extension | Abre worktree no VS Code + copia prompt → comando "Claude: New Chat" |
+| **Antigravity** (Google) | Copia prompt + instrução + working dir |
+| **Windsurf** (Codeium) | Abre worktree no Windsurf + copia prompt → nova Cascade chat |
+| **Outros** | Clipboard puro + arquivo temp com prompt |
 
-Override per-project via `dispatch.method` in profile.
+Sobrescreve por projeto via `dispatch.method` no profile.
 
-## How it differs from alternatives
+## Como difere de alternativas
 
-| Approach | Trade-off |
+| Abordagem | Trade-off |
 |---|---|
-| **Single long chat** | Context bloat, no parallelism, no memory across sprints |
-| **`superpowers:executing-plans`** | Great for executing a known plan in one session; doesn't orchestrate multi-sprint flows |
-| **Plain TODO list / Notion** | No learned anti-patterns; no automation around dispatch + review |
-| **This skill** | Multi-chat workflow, addon-modular, state-persistent, validated in production |
+| **Chat longo único** | Context bloat, sem paralelismo, sem memória entre sprints |
+| **`superpowers:executing-plans`** | Bom pra executar plano conhecido em uma sessão; não orquestra fluxo multi-sprint |
+| **TODO list / Notion** | Sem anti-padrões aprendidos; sem automação de dispatch + review |
+| **Esta skill** | Workflow multi-chat, addon-modular, estado persistente, validado em produção |
 
 ## Status
 
-**v1.0.1** (current): foundation + 3 advanced workflows + one-liner installer.
+**v1.0.1** (atual): fundação + 3 workflows avançados + installer one-liner.
 
 **Roadmap (v2.0):**
 
-- Bug patterns split per addon (most are placeholders right now — biggest gap)
-- More example profiles (Next.js+Vercel, Django, simple monolith)
-- Cleanup scripts (`cleanup-merged.sh`, `list-sprints.sh`)
-- Sprint stuck recovery checklist
-- Kickoff template for new projects
-- Scheduled task implementation (for projects without GitHub Actions)
+- Bug patterns split por addon (a maioria são placeholders hoje — maior gap)
+- Mais profiles de exemplo (Next.js+Vercel, Django, monolito simples)
+- Scripts de cleanup (`cleanup-merged.sh`, `list-sprints.sh`)
+- Checklist de recovery pra sprint travado
+- Template de kickoff pra projetos novos
+- Implementação de scheduled task (pra projetos sem GitHub Actions)
 
-## Contributing
+## Contribuindo
 
-The most valuable contributions:
+Contribuições mais valiosas:
 
-- 🧠 **Bug patterns** from your real production debugging → see [bug-pattern issue template](.github/ISSUE_TEMPLATE/bug-pattern.md)
-- 🧩 **New addons** for your stack (Rails, Django, Spring, Go, etc.) → see [CONTRIBUTING.md](CONTRIBUTING.md)
-- 📋 **Example profiles** in `examples/`
-- 🌍 **Translations** of this README
+- 🧠 **Bug patterns** do seu debugging real em produção → ver [template de issue bug-pattern](.github/ISSUE_TEMPLATE/bug-pattern.md)
+- 🧩 **Addons novos** pra sua stack (Rails, Django, Spring, Go, etc.) → ver [CONTRIBUTING.md](CONTRIBUTING.md)
+- 📋 **Perfis de exemplo** em `examples/`
+- 🌍 **Traduções** deste README
 
-## License
+## Licença
 
-MIT — see [LICENSE](LICENSE). Fork freely.
+MIT — ver [LICENSE](LICENSE). Faz fork à vontade.
 
-## Origin
+## Origem
 
-Built and validated in 17+ production sprints between May 2026 and the public release. Original validation in the [SuperDB](https://github.com/private/project) project (Brazilian multi-tenant BaaS) — see [`examples/superdb-profile.yml`](examples/superdb-profile.yml) for the canonical real-world profile.
+Construída e validada em 17+ sprints de produção entre Maio/2026 e o release público. Validação inicial no projeto [SuperDB](https://github.com/private/project) (BaaS multi-tenant brasileiro) — ver [`examples/superdb-profile.yml`](examples/superdb-profile.yml) pro perfil real canônico.

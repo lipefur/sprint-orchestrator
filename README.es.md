@@ -9,7 +9,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Discussions](https://img.shields.io/badge/💬-Discussions-blueviolet)](https://github.com/lipefur/sprint-orchestrator/discussions)
 
-**🌍 Idiomas:** [English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md)
+**🌍 Idiomas:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 **📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
 
 ---
