@@ -78,6 +78,7 @@ Quando o user invocar esta skill:
 - **Adversarial review** (`core/adversarial-review.md`) — 3º Claude isolado revisa PR adversarialmente, posta comments. Você vira arbitrador, não reviewer. Ativa via `profile.adversarial_review.enabled: true`.
 - **Preview deploy + auto-validation** (`addons/github-actions/preview-validation/`) — quando PR abre, GitHub Action faz preview deploy + Playwright contra URL preview + posta PR comment estruturado. Mata o polling do "PR aberto?". Ativa via `profile.github-actions.preview_validation: true`.
 - **Capture learnings** (`checklists/capture-learnings.md`) — após cada deploy, orquestrador triagia bugs fixados durante sprint e propõe adição às `addons/<X>/bug-patterns.md`. Loop de auto-melhoria da skill.
+- **Visual dashboard** (`scripts/dashboard/`) — kanban board local renderizado a partir do `state.md`. Modos: estático / live server (`--serve`) / multi-project workspace (`--workspace`). Roda 100% local, zero tokens Claude. Invoque com `bash <skill>/scripts/dashboard.sh`.
 
 ## Profile schema (resumo)
 

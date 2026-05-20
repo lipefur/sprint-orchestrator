@@ -5,6 +5,28 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased] — v1.1.0 (visual dashboard)
+
+### Added
+
+- **`scripts/dashboard.sh`** — local kanban dashboard with 3 modes:
+  - Static HTML (default): generates `$TMPDIR/sprint-orchestrator-dashboard.html` and opens in browser
+  - `--serve`: local web server on `http://localhost:8765` with live updates via Server-Sent Events (state.md file watcher)
+  - `--workspace`: multi-project mode reading `~/.config/sprint-orchestrator/workspace.yml`
+- **`scripts/dashboard/template.html`** — vanilla HTML/CSS dark-theme kanban (4 columns: Planning/In Progress/Review/Done) with color-coding per phase
+- **`scripts/dashboard/server.py`** — Python stdlib-only HTTP server with SSE for live updates (no pip installs needed)
+- **`scripts/dashboard/README.md`** — usage docs for the dashboard
+
+### Key property
+
+Dashboard runs **100% locally** — bash + Python stdlib + browser. **Zero Claude token consumption.** Doesn't read or write `.sprint-orchestrator/state.md` except to parse it (read-only).
+
+### Mentioned in
+
+- SKILL.md: new bullet in "Workflows avançados" section
+- All 3 READMEs: new "📊 Visual dashboard" subsection
+- `scripts/dashboard/README.md` has full reference
+
 ## [Unreleased] — v1.0.3 (anonymized example profile)
 
 ### Security / Privacy
@@ -39,7 +61,7 @@ Even meta-information (hostname of an admin panel, internal schema names) reduce
 
 ### Rationale
 
-GitHub renders `README.md` by default. Putting Portuguese there reflects the project's origin (Brazilian dev community, validated in SuperDB) without losing English/Spanish accessibility (one click away from the language switcher).
+GitHub renders `README.md` by default. Putting Portuguese there reflects the project's origin (Brazilian dev community) without losing English/Spanish accessibility (one click away from the language switcher).
 
 ## [Unreleased] — v1.0.1 (installer)
 
@@ -93,7 +115,7 @@ GitHub renders `README.md` by default. Putting Portuguese there reflects the pro
 ## [Unreleased] — Fase 1.2 (slim + agnóstico real)
 
 ### Removed
-- **Zero referências SuperDB-específicas** nos arquivos de execução (`SKILL.md`, `core/`, `addons/`, `checklists/`, `templates/`, `scripts/`). Refs históricas permanecem só em `README.md`, `CHANGELOG.md` e `examples/superdb-profile.yml`.
+- **Zero referências ao projeto original** nos arquivos de execução (`SKILL.md`, `core/`, `addons/`, `checklists/`, `templates/`, `scripts/`). Skill agora é totalmente agnóstica.
 - `checklists/deploy-prod.md` não tem mais comandos hardcoded de SSH/Coolify/host alias — agora delega a addons específicos
 - `checklists/pre-dispatch.md` reescrito com checks addon-aware (sem referenciar `auth_global`, `proj_management`, `docs/landing/`)
 
@@ -139,14 +161,14 @@ GitHub renders `README.md` by default. Putting Portuguese there reflects the pro
 - `templates/prompt-dispatch.md` agnóstico
 - Documentação do `.sprint-orchestrator/state.md` + scheduled task pattern em `core/workflow.md`
 - README.md MIT-licensed pra OSS
-- `examples/superdb-profile.yml`
+- `examples/multi-tenant-saas-profile.yml` (anonymized reference profile)
 
 ### Changed
 - `SKILL.md` reescrito como entry point agnóstico (lê profile + ativa addons)
 - `templates/plan.md` (genérico) substituído por subpasta `templates/plan/` com variantes por tipo
 
 ### Removed
-- Refs hardcoded ao SuperDB no `core/` (paths `docs/superpowers/`, Coolify, Bun, schemas `auth_global`, etc.)
+- Refs hardcoded ao projeto original no `core/` (paths específicos, Coolify, Bun, schemas internos, etc.)
 
 ### Migration notes
 - Skill antiga preservada em `_legacy/` durante migração

@@ -234,6 +234,20 @@ Após cada deploy, orquestrador triagia commits `fix:` do sprint e propõe novos
 
 → [`checklists/capture-learnings.md`](checklists/capture-learnings.md)
 
+### 📊 Visual dashboard
+
+Kanban board local renderizado a partir do `state.md`. Três modos:
+
+```bash
+bash <skill>/scripts/dashboard.sh              # HTML estático, abre no browser
+bash <skill>/scripts/dashboard.sh --serve      # live server com auto-refresh (SSE)
+bash <skill>/scripts/dashboard.sh --workspace  # multi-project a partir de ~/.config/sprint-orchestrator/workspace.yml
+```
+
+Roda 100% local, **zero tokens Claude**. Vê tudo de relance: sprints por fase, PRs abertos com labels, recent merges.
+
+→ [`scripts/dashboard/`](scripts/dashboard/)
+
 ## Suporte multi-IDE
 
 O script de dispatch **detecta seu ambiente automaticamente** e adapta:
