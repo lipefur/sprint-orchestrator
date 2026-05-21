@@ -5,6 +5,21 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Added — Deploy duplication bug pattern
+
+Real production case captured: deploy platform queued 2-4 deploys for a single PR merge due to overlapping triggers (webhook + semantic-release auto-commit + manual API call).
+
+- **New file**: `addons/coolify-ssh/bug-patterns.md` documents the Coolify-specific case with 3 fix strategies (manual-only / webhook-only / path-filter)
+- **`core/anti-patterns.md` #9**: cross-cutting version of the same pattern (applies to any platform with webhook + release tool + API: Vercel, Fly, Railway, Render, etc.)
+- **`checklists/deploy-prod.md`** step 4 gained a `⚠️` callout linking to both, and a new check item: "Apenas 1 deploy foi enfileirado"
+- **`addons/coolify-ssh/README.md`** gained a "Bug patterns conhecidos" section linking to the new file
+
+### Why this matters
+
+This is the first real "captured learning" since v1.1.0 — exactly the kind of contribution the [`checklists/capture-learnings.md`](checklists/capture-learnings.md) workflow exists to harvest. Pattern is reusable across stacks: any team running semantic-release + auto-deploy webhook + scripted deploy will hit this.
+
 ## [Unreleased] — v1.1.0 (visual dashboard)
 
 ### Added

@@ -118,6 +118,36 @@ done
 
 ---
 
+## 9. Deploy duplicado por múltiplos triggers (webhook + auto-commit + API manual)
+
+**Sintoma:** Plataforma de deploy enfileira 2-4 deploys em sequência após um único PR mergeado. Build/deploy roda múltiplas vezes desperdiçando compute e arriscando race conditions se migrations ou steps env-mutating rodam mais de uma vez.
+
+**Causa:** Três triggers independentes podem disparar pro mesmo evento "publicar esse PR":
+
+1. **Webhook do git host** (GitHub/GitLab → plataforma) dispara em todo push em main
+2. **Ferramenta de release automática** (`semantic-release`, `release-please`, etc.) faz um **commit adicional** em main pra bumpar version + CHANGELOG → dispara o webhook de novo
+3. **Chamada manual** de `POST /deploy` (ou equivalente CLI) do checklist de deploy adiciona um terceiro
+
+Cada trigger constrói essencialmente o mesmo código, mas a plataforma processa cada um como deploy separado.
+
+**Fix preventivo (escolha uma estratégia):**
+
+- **Single source of truth — só manual**: desliga o webhook automático na plataforma. Deploys só via API/CLI explícita do orchestrator depois que migrations + env vars estão prontos.
+- **Webhook only**: mantém webhook automático. Tira o `POST /deploy` do checklist. Configura `semantic-release` com `[skip ci]` no commit message ou roda **antes** do merge.
+- **Path filter no webhook** (recomendado com semantic-release): plataforma ignora pushes que só tocam `package.json` + `CHANGELOG.md` (arquivos típicos do auto-commit). Manual deploy continua valendo. Requer plataforma com suporte a path filters.
+
+**Fix reativo (já aconteceu):**
+
+1. **Não cancela deploy rodando** — interromper pode deixar app inconsistente
+2. Espera o deploy ativo terminar
+3. Cancela os enfileirados na UI da plataforma
+4. Valida estado final via health check + smoke E2E
+5. Documenta a fonte do trigger usado em `state.md` pra próximo sprint do projeto saber qual estratégia adotar
+
+**Para detalhes stack-specific** (Coolify, Vercel, Fly, Railway, etc.): ver `addons/<nome>/bug-patterns.md`. Coolify documentado em [`addons/coolify-ssh/bug-patterns.md`](../addons/coolify-ssh/bug-patterns.md).
+
+---
+
 ## Como adicionar caso novo
 
 Após cada deploy debug, se descobriu padrão **cross-cutting** (aparece em mais de uma stack):

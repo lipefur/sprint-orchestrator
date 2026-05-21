@@ -45,6 +45,9 @@ Depende do addon de deploy. Padrão: `git push origin main` deve disparar automa
 
 - [ ] Aguarda deploy completar (timeout sensato: 5-15min)
 - [ ] Logs do deploy não têm errors
+- [ ] Apenas 1 deploy foi enfileirado (múltiplos = trigger duplicado, ver warning abaixo)
+
+> ⚠️ **Cuidado com triggers duplicados.** Se o projeto usa `semantic-release` (ou release-please) E o webhook auto-deploy está ativo E você chama API manual → 2-3 deploys redundantes pro mesmo PR. Ver `core/anti-patterns.md` #9 (cross-cutting) ou `addons/coolify-ssh/bug-patterns.md` #1 (Coolify-specific) pra estratégias de fix.
 
 ## 5. Container/runtime warm-up
 

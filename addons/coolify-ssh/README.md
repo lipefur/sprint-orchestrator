@@ -20,3 +20,7 @@ coolify-ssh:
   api_base: https://coolify.example.com
   # COOLIFY_TOKEN vem de env var, NUNCA no profile
 ```
+
+## Bug patterns conhecidos
+
+- [bug-patterns.md](bug-patterns.md) — duplicate deploys (webhook + semantic-release + manual API), e outros padrões observados em produção
