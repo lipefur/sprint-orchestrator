@@ -1,6 +1,23 @@
 # Post-PR Review Checklist
 
-Rode quando user volta dizendo "PR #{N} aberto" ou "sprint X completo".
+Rode quando user cola o **sprint completion report** (template em `templates/sprint-completion-report.md`).
+
+O relatório tem formato fixo — parseie:
+
+1. **Status geral** (✅ DONE / ⚠️ DONE_WITH_CONCERNS / ❌ BLOCKED / 🛑 NEEDS_DECISION)
+2. **Próximo passo claro** (`review_and_merge` / `review_then_block_for_setup` / `fix_needed` / `decision_needed` / `blocked_external`)
+3. **Pendências orquestrador** — lista de itens pra você fazer antes do merge
+4. **Bugs encontrados durante** — input pro capture-learnings
+
+Decida a ação imediata baseado no `Próximo passo`:
+
+- `review_and_merge` → roda este checklist do passo 0 ao 8
+- `review_then_block_for_setup` → resolve pendências PRIMEIRO, depois roda este checklist
+- `fix_needed` → vai pra passo 2 (CI status) pra investigar, fix inline
+- `decision_needed` → bate decisão com user, atualiza plano se necessário, sprint chat continua
+- `blocked_external` → comunica user, pode requerer re-dispatch quando o bloqueio resolver
+
+Se o usuário não usou o template (relatório informal), peça pra ele rodar o sprint chat de novo com o template, ou tente extrair os mesmos campos manualmente.
 
 ## 0. Adversarial review (se ativo no profile)
 

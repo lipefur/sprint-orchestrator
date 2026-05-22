@@ -64,12 +64,20 @@ Ver `core/anti-patterns.md` da skill. Top 5 imediatos:
 
 ## Entregar ao fim (mensagem final do sprint chat)
 
-- N commits, +X/-Y, M arquivos
-- (Se e2e-validation) Resultado dos fluxos E2E (PASS/FAIL com screenshots)
-- PR #N criado
-- Pendências orquestrador (env vars novas, migrations prod, contas externas)
-- state.md atualizado
-- Próximo passo claro ("orchestrator: review + merge + aplicar X em prod")
+Use o template **`templates/sprint-completion-report.md`** da skill — formato fixo copy-paste-ready pro orquestrador parsear sem reler a conversa.
+
+Resumo do que vai no relatório:
+- Status geral (✅ DONE / ⚠️ DONE_WITH_CONCERNS / ❌ BLOCKED / 🛑 NEEDS_DECISION)
+- Identificação (sprint #, branch, worktree, PR, tempo)
+- O que entregou (arquivos novos/modificados, migrations, testes)
+- Validação (smoke, Playwright, CI, adv-review)
+- Stats (commits, ±linhas, multi-agent)
+- Decisões tomadas durante o sprint (trade-offs que apareceram)
+- Bugs encontrados durante (vira insumo pra capture-learnings)
+- Pendências orquestrador (env vars, migrations prod, contas externas)
+- **Próximo passo claro** com um dos status: `review_and_merge`, `review_then_block_for_setup`, `fix_needed`, `decision_needed`, `blocked_external`
+
+Sprint chat copia o template, preenche, cola no chat orquestrador.
 
 ## Critérios de DoD
 

@@ -7,6 +7,16 @@ Versionamento segue [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Sprint completion report template
+
+- **New file**: `templates/sprint-completion-report.md` — copy-paste-ready template the sprint chat fills in and pastes to the orchestrator chat at the end of execution
+- Fixed structure with explicit fields: Status, Identificação, O que foi entregue, Validação, Stats, Decisões durante sprint, Bugs encontrados, Pendências orquestrador, **Próximo passo claro** (one of 5 enums)
+- Includes a "variation curta" for trivial sprints
+- **`templates/prompt-dispatch.md`** updated: sprint chat is now instructed to use this template at end of execution
+- **`checklists/post-pr-review.md`** updated: orchestrator parses the report's `Próximo passo claro` to decide immediate action
+
+Reasoning: previously the "final message from sprint chat" was a bullet list in `prompt-dispatch.md`. Each sprint chat would produce something slightly different. With a fixed template, the orchestrator can parse mechanically and decide action without re-reading the conversation.
+
 ### Added — Deploy duplication bug pattern
 
 Real production case captured: deploy platform queued 2-4 deploys for a single PR merge due to overlapping triggers (webhook + semantic-release auto-commit + manual API call).
