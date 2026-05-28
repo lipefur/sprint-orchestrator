@@ -8,6 +8,7 @@
 [![Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-orange.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Discussions](https://img.shields.io/badge/💬-Discussions-blueviolet)](https://github.com/lipefur/sprint-orchestrator/discussions)
+[![skills.sh](https://img.shields.io/badge/skills.sh-install-black)](https://www.skills.sh)
 
 **🌍 Idiomas:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 **📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
@@ -60,7 +61,15 @@ Você não filma cada quadro. Você **dirige**, o produtor **planeja e revisa**,
 
 **Não é pra:** scripts de uso único, protótipos descartáveis, "só conserta esse typo". Pra isso, usa Claude direto.
 
-## 🚀 Instalação (1 comando)
+## 🚀 Instalação
+
+**Via `npx skills` (recomendado — cross-agent: Claude Code, Cursor, Codex, Windsurf, +50):**
+
+```bash
+npx skills add lipefur/sprint-orchestrator
+```
+
+**Via installer dedicado (Claude Code, com check de dependências):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash

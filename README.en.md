@@ -8,6 +8,7 @@
 [![Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-orange.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Discussions](https://img.shields.io/badge/💬-Discussions-blueviolet)](https://github.com/lipefur/sprint-orchestrator/discussions)
+[![skills.sh](https://img.shields.io/badge/skills.sh-install-black)](https://www.skills.sh)
 
 **🌍 Languages:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 **📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
@@ -60,7 +61,15 @@ That's it. That's the skill.
 
 **Not for:** one-off scripts, throwaway prototypes, "just fix this typo" tasks. Use Claude directly for those.
 
-## 🚀 Install (1 command)
+## 🚀 Install
+
+**Via `npx skills` (recommended — cross-agent: Claude Code, Cursor, Codex, Windsurf, +50):**
+
+```bash
+npx skills add lipefur/sprint-orchestrator
+```
+
+**Via dedicated installer (Claude Code, with dependency check):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lipefur/sprint-orchestrator/main/install.sh | bash
