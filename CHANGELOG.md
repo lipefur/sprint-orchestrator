@@ -171,7 +171,7 @@ GitHub renders `README.md` by default. Putting Portuguese there reflects the pro
 ### Removed
 - **Zero referências ao projeto original** nos arquivos de execução (`SKILL.md`, `core/`, `addons/`, `checklists/`, `templates/`, `scripts/`). Skill agora é totalmente agnóstica.
 - `checklists/deploy-prod.md` não tem mais comandos hardcoded de SSH/Coolify/host alias — agora delega a addons específicos
-- `checklists/pre-dispatch.md` reescrito com checks addon-aware (sem referenciar `auth_global`, `proj_management`, `docs/landing/`)
+- `checklists/pre-dispatch.md` reescrito com checks addon-aware (sem referenciar paths ou schemas específicos de nenhum projeto)
 
 ### Changed
 - **SKILL.md cortado de 152 → 126 linhas** — removida seção "Setup em projeto novo" (já está no README, não precisa carregar no contexto)

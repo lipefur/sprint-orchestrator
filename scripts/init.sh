@@ -93,9 +93,9 @@ elif find . -maxdepth 4 -type d -name "migrations" 2>/dev/null | head -1 | grep 
 fi
 
 if [[ " ${DETECTED_ADDONS[*]:-} " =~ " postgres " ]]; then
-  if find . -maxdepth 5 -path "*/migrations/*.sql" -exec grep -l -E "auth_global|provision_|tenant_schema|proj_management" {} \; 2>/dev/null | head -1 | grep -q .; then
+  if find . -maxdepth 5 -path "*/migrations/*.sql" -exec grep -l -E "shared_auth|provision_|tenant_schema|shared_core" {} \; 2>/dev/null | head -1 | grep -q .; then
     DETECTED_ADDONS+=("multi-tenant")
-    echo "  ✓ Multi-tenant pattern detected (provision_* or auth_global in migrations)"
+    echo "  ✓ Multi-tenant pattern detected (provision_* or shared schemas in migrations)"
   fi
 fi
 

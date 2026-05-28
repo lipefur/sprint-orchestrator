@@ -71,7 +71,7 @@ postgres:
   service_role: platform_admin
 
 multi-tenant:
-  global_schemas: [auth_global, proj_management]   # global schemas (shared across tenants)
+  global_schemas: [shared_auth, shared_core]   # global schemas (shared across tenants)
   tenant_schema_pattern: "proj_*"                  # per-tenant schema pattern
   tenant_role_pattern: "proj_{slug}_owner"         # per-tenant role pattern
 

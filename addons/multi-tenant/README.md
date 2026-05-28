@@ -10,7 +10,7 @@ Requer `postgres`.
 
 ## Detecção automática
 
-- Pattern `auth_global`, `proj_management`, ou similar em migrations
+- Pattern `shared_auth`, `shared_core`, ou similar em migrations
 - Função SQL `provision_*` em migrations
 - Schemas com pattern `proj_*`, `org_*`, `tenant_*`
 
@@ -18,7 +18,7 @@ Requer `postgres`.
 
 ```yaml
 multi-tenant:
-  global_schemas: [auth_global, proj_management]   # schemas globais
+  global_schemas: [shared_auth, shared_core]   # schemas globais
   tenant_schema_pattern: "proj_*"                  # pattern dos schemas per-tenant
   tenant_role_pattern: "proj_{slug}_owner"         # pattern do role do tenant
 ```
