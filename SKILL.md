@@ -80,6 +80,17 @@ Quando o user invocar esta skill:
 - **Capture learnings** (`checklists/capture-learnings.md`) — após cada deploy, orquestrador triagia bugs fixados durante sprint e propõe adição às `addons/<X>/bug-patterns.md`. Loop de auto-melhoria da skill.
 - **Visual dashboard** (`scripts/dashboard/`) — kanban board local renderizado a partir do `state.md`. Modos: estático / live server (`--serve`) / multi-project workspace (`--workspace`). Roda 100% local, zero tokens Claude. Invoque com `bash <skill>/scripts/dashboard.sh`.
 
+## Modos adaptativos
+
+A skill escolhe entre 2 modos conforme context window + tamanho do sprint:
+
+- **monolithic** — orquestrador + execução no mesmo chat (aproveita 1M). Worktree mantido, subagents só pra áreas disjuntas.
+- **split** — 2 chats (orquestrador + sprint chat separado via URL scheme). Necessário em 200k.
+
+`mode: auto` (default) decide: 200k → split; 1m → monolithic pra sprint pequeno/médio, split pra épico. Anuncia a decisão e aceita veto. Heurística completa em `core/workflow.md`.
+
+Profile antigo sem bloco `model:` → assume 200k + split (backward compat). Addon opcional `full-context` carrega o repo inteiro no contexto quando em 1m.
+
 ## Profile schema (resumo)
 
 Arquivo `.sprint-orchestrator.yml` na raiz do projeto consumidor. Schema versionado (atual: v1). Ver `CHANGELOG.md` pra mudanças de versão.
@@ -88,6 +99,10 @@ Arquivo `.sprint-orchestrator.yml` na raiz do projeto consumidor. Schema version
 version: 1
 project_name: string            # obrigatório
 default_branch: main
+
+model:
+  context_window: 1m            # 1m | 200k (perguntado no init.sh)
+  mode: auto                    # auto | monolithic | split
 
 paths:
   plans: docs/superpowers/plans
