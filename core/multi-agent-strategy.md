@@ -2,6 +2,13 @@
 
 Quando dispatchar 1, 2, 3 ou 4 agents paralelos dentro do sprint chat.
 
+## "Agent" depende do modo
+
+- **Modo split**: cada "agent" pode ser um chat separado OU um subagent dentro do sprint chat.
+- **Modo monolithic**: "agents" são **subagents** (Task tool) dispatchados pelo mesmo chat. Execução é inline por default; dispatcha subagent só quando há áreas disjuntas que ganham com paralelismo real.
+
+A matriz de decisão abaixo (quando usar N agents) vale igual nos dois modos — muda só o mecanismo (chat vs subagent).
+
 ## Matriz de decisão
 
 | Complexidade | Agents | Risco overlap |
