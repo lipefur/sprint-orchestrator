@@ -151,6 +151,8 @@ if [ "$NON_INTERACTIVE" -eq 1 ]; then
   WORKTREES_PATH=".claude/worktrees"
   SMOKE_LOCAL="$SMOKE_LOCAL_GUESS"
   DISPATCH_METHOD="auto"
+  CONTEXT_WINDOW="1m"
+  MODEL_MODE="auto"
 else
   echo "🔧 Configuration"
   echo ""
@@ -214,6 +216,18 @@ else
     8) DISPATCH_METHOD="clipboard-only" ;;
     *) echo "Invalid choice"; exit 1 ;;
   esac
+
+  echo ""
+  echo "Context window do seu modelo principal:"
+  echo "  1) 1m    (Opus 4.6+ / 4.8 — 1M tokens)"
+  echo "  2) 200k  (Sonnet / Foundry / modelos antigos)"
+  read -r -p "Choose [1]: " CTX_CHOICE
+  case "${CTX_CHOICE:-1}" in
+    1) CONTEXT_WINDOW="1m" ;;
+    2) CONTEXT_WINDOW="200k" ;;
+    *) CONTEXT_WINDOW="1m" ;;
+  esac
+  MODEL_MODE="auto"
 fi
 
 # -----------------------------------------------------------------------------
@@ -246,6 +260,10 @@ PROFILE_CONTENT=$(cat <<EOF
 version: 1
 project_name: $PROJECT_NAME
 default_branch: main
+
+model:
+  context_window: $CONTEXT_WINDOW   # 1m | 200k
+  mode: $MODEL_MODE                 # auto | monolithic | split
 
 paths:
   plans: $PLANS_PATH
