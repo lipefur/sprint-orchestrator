@@ -1,6 +1,6 @@
 # sprint-orchestrator
 
-> **Stop losing context in long Claude chats.** Build big features sprint-by-sprint with persistent memory, parallel execution, and learned anti-patterns.
+> **Orchestrate software sprints with Claude:** parallelism, git-worktree isolation, institutional memory, and (on smaller models) zero context bloat. Adapts to 1M or 200k context.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Latest](https://img.shields.io/github/v/release/lipefur/sprint-orchestrator?color=blue)](https://github.com/lipefur/sprint-orchestrator/releases)
@@ -247,6 +247,15 @@ bash <skill>/scripts/dashboard.sh --workspace  # multi-project from ~/.config/sp
 Runs 100% locally, **zero Claude tokens consumed**. See everything at a glance: sprints by phase, open PRs with labels, recent merges.
 
 → [`scripts/dashboard/`](scripts/dashboard/)
+
+### 🎛️ Adaptive modes (1M / 200k)
+
+The skill detects your context window (asked during `init.sh`) and picks:
+
+- **monolithic** (1M / Opus 4.6+/4.8) — orchestrator + execution in the same chat. Less handoff. Worktree kept; subagents only for disjoint areas.
+- **split** (200k / Sonnet / Foundry) — 2 separate chats. Classic behavior.
+
+`mode: auto` decides by context window + sprint size, announces the decision, and accepts a veto. Fixed override via `model.mode` in the profile. Old profiles without `model:` → split (backward compat). Details in `core/workflow.md`.
 
 ## Multi-IDE support
 

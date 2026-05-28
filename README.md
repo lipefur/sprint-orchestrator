@@ -1,6 +1,6 @@
 # sprint-orchestrator
 
-> **Pare de perder contexto em chats longos com Claude.** Construa features grandes em sprints, com memória persistente, execução paralela e anti-padrões aprendidos.
+> **Orquestre sprints de software com Claude:** paralelismo, isolation via git worktree, memória institucional e (em modelos menores) zero context bloat. Adaptativo a 1M ou 200k de context.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Latest](https://img.shields.io/github/v/release/lipefur/sprint-orchestrator?color=blue)](https://github.com/lipefur/sprint-orchestrator/releases)
@@ -233,6 +233,15 @@ Templates de GitHub Action pra Vercel/Fly/Railway/Coolify. Quando PR abre: sobe 
 Após cada deploy, orquestrador triagia commits `fix:` do sprint e propõe novos bug patterns pra adicionar nos addons. A skill **evolui com o uso** em vez de ficar estática.
 
 → [`checklists/capture-learnings.md`](checklists/capture-learnings.md)
+
+### 🎛️ Modos adaptativos (1M / 200k)
+
+A skill detecta seu context window (perguntado no `init.sh`) e escolhe:
+
+- **monolithic** (1M / Opus 4.6+/4.8) — orquestrador + execução no mesmo chat. Menos handoff. Worktree mantido; subagents só pra áreas disjuntas.
+- **split** (200k / Sonnet / Foundry) — 2 chats separados. Comportamento clássico.
+
+`mode: auto` decide por context window + tamanho do sprint, anuncia a decisão e aceita veto. Override fixo via `model.mode` no profile. Profile antigo sem `model:` → split (backward compat). Detalhes em `core/workflow.md`.
 
 ### 📊 Visual dashboard
 
