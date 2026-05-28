@@ -5,6 +5,35 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [Unreleased] — v1.2.0 (Adaptive Mode)
+
+### Added
+
+- **Modo monolithic** — orquestrador + execução no mesmo chat, aproveitando 1M context (Opus 4.6+/4.8). Worktree mantido, subagents só pra áreas disjuntas.
+- **Profile `model:` block** — `context_window: 1m|200k` + `mode: auto|monolithic|split`
+- **Heurística de decisão de modo** na fase PLAN (auto: 200k→split, 1m→monolithic pra pequeno/médio, split pra épico). Anuncia + aceita veto.
+- **Addon `full-context`** — carrega repo filtrado no contexto quando 1m (filtros + limite ~500k tokens, cai pra incremental se grande)
+- `init.sh` pergunta context window e salva no profile
+- `create-worktree.sh` ramifica dispatch por modo (monolithic = cd no mesmo chat; split = URL scheme atual) + escreve modo no state.md
+
+### Changed
+
+- **Pitch rebalanceado** (README + workflow.md): paralelismo + isolation + memória institucional como benefícios principais; context bloat passa a ser 1 benefício (relevante só em 200k), não O motivo
+- `core/multi-agent-strategy.md`: "agents" = subagents (monolithic) ou chats (split)
+
+### Fixed
+
+- `read_profile_key` (create-worktree.sh): grep sem match retornava exit 1 sob `set -e/pipefail`, matando o script. Agora retorna vazio — necessário pra backward compat (profile sem `model:`). Também strippa comentários inline YAML (`# ...`).
+
+### Backward compatibility
+
+- Profile antigo sem `model:` → assume 200k + split = **comportamento idêntico ao atual**. Quem usa Sonnet/Foundry/200k não vê diferença.
+
+### Cut (YAGNI)
+
+- Memory nativa (carregar todas memories) — apenas relaxada a parcimônia, sem feature
+- `reasoning_effort` por tipo de sprint — 4.8 calibra sozinho
+
 ## [Unreleased]
 
 ### Added — Sprint completion report template
