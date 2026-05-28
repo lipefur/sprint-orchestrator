@@ -276,38 +276,71 @@ copy_to_clipboard() {
   return 1
 }
 
+# NOTE: `open <url>` exits 0 even when the URL-scheme handler silently does
+# nothing (no app registered, prompt too long, headless/SSH session). So the
+# URL scheme is treated as BEST-EFFORT only — we never report it as definitive
+# success. The prompt is ALWAYS saved to a file + clipboard first so the user
+# can paste it regardless of whether a new chat actually opened.
 dispatch_via_claude_cli() {
+  TMP_PROMPT="/tmp/sprint-${N}-${THEME_SLUG}-prompt.md"
+  echo "$PROMPT" > "$TMP_PROMPT"
+  copy_to_clipboard "$PROMPT" && CLIP_OK=1 || CLIP_OK=0
+
+  opened=0
   if command -v python3 >/dev/null 2>&1; then
     PROMPT_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.stdin.read()))" <<< "$PROMPT")
     FOLDER_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$WORKTREE_ABSOLUTE")
     DISPATCH_URL="claude-cli://?q=${PROMPT_ENC}&folder=${FOLDER_ENC}"
-
-    if [ "${#DISPATCH_URL}" -gt 1800 ]; then
-      TMP_PROMPT="/tmp/sprint-${N}-${THEME_SLUG}-prompt.md"
-      echo "$PROMPT" > "$TMP_PROMPT"
-      DISPATCH_URL="claude-cli://?folder=${FOLDER_ENC}&prompt-file=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$TMP_PROMPT")"
-      echo "ℹ️  Prompt > 1800 chars; saved to $TMP_PROMPT and referenced via URL"
-    fi
-
-    if open "$DISPATCH_URL" 2>/dev/null; then
-      echo "🚀 Opened Claude Code via claude-cli:// URL scheme"
-      return 0
-    fi
+    # Best-effort: attempt to open a chat. Unregistered handlers / very long
+    # URLs fail silently (open still exits 0), so this is never treated as
+    # definitive — the clipboard + file fallback above is the real guarantee.
+    if open "$DISPATCH_URL" 2>/dev/null; then opened=1; fi
   fi
-  return 1
+
+  if [ "$opened" = "1" ]; then
+    HINT="↳ Tried to open a new chat via claude-cli:// — if none appeared, paste the prompt above."
+  else
+    HINT="↳ Open a NEW Claude Code chat in the worktree and paste the prompt above."
+  fi
+  cat <<EOM
+
+🚀 Claude Code dispatch (split mode)
+   Worktree: $WORKTREE_ABSOLUTE
+   Prompt saved to: $TMP_PROMPT
+$( [ "$CLIP_OK" = "1" ] && echo "   ✓ Prompt copied to clipboard" )
+   $HINT
+EOM
+  return 0
 }
 
 dispatch_via_claude_desktop() {
+  TMP_PROMPT="/tmp/sprint-${N}-${THEME_SLUG}-prompt.md"
+  echo "$PROMPT" > "$TMP_PROMPT"
+  copy_to_clipboard "$PROMPT" && CLIP_OK=1 || CLIP_OK=0
+
+  opened=0
   if command -v python3 >/dev/null 2>&1; then
     PROMPT_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.stdin.read()))" <<< "$PROMPT")
     FOLDER_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$WORKTREE_ABSOLUTE")
     DISPATCH_URL="claude://code/new?q=${PROMPT_ENC}&folder=${FOLDER_ENC}"
-    if open "$DISPATCH_URL" 2>/dev/null; then
-      echo "🚀 Opened Claude Desktop via claude:// URL scheme"
-      return 0
-    fi
+    # Best-effort (see claude-cli note above): never definitive.
+    if open "$DISPATCH_URL" 2>/dev/null; then opened=1; fi
   fi
-  return 1
+
+  if [ "$opened" = "1" ]; then
+    HINT="↳ Tried to open a new chat via claude:// — if none appeared, paste the prompt above."
+  else
+    HINT="↳ Open a NEW Claude Desktop chat in the worktree and paste the prompt above."
+  fi
+  cat <<EOM
+
+🚀 Claude Desktop dispatch (split mode)
+   Worktree: $WORKTREE_ABSOLUTE
+   Prompt saved to: $TMP_PROMPT
+$( [ "$CLIP_OK" = "1" ] && echo "   ✓ Prompt copied to clipboard" )
+   $HINT
+EOM
+  return 0
 }
 
 dispatch_via_cursor() {

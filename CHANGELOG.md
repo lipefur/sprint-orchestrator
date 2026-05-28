@@ -5,7 +5,17 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
-## [Unreleased] — v1.2.0 (Adaptive Mode)
+## [v1.2.1] — Dispatch reliability fix
+
+### Fixed
+
+- **Dispatch do split mode nunca mais falha silenciosamente.** `dispatch_via_claude_cli` / `dispatch_via_claude_desktop` (`create-worktree.sh`) confiavam no exit code de `open <url>` — mas no macOS o `open` retorna sucesso (0) mesmo quando o handler do URL scheme não faz nada (app não registrado, sessão headless/SSH, prompt longo demais). O script anunciava "🚀 Opened" sem nenhum chat ter aberto, deixando o usuário sem o prompt. Agora o prompt é **sempre** salvo em arquivo + copiado pro clipboard primeiro (a garantia), o URL scheme é tentado só como best-effort, e a mensagem é honesta: _"se nenhum chat abriu, cola o prompt acima"_. Removido o guard `≤1800 chars` que pulava a tentativa de `open` pra qualquer prompt realista.
+
+### Privacy
+
+- Genericizados os nomes de schema de exemplo no addon `multi-tenant` (`auth_global`/`proj_management` → `shared_auth`/`shared_core`) — zero referência a qualquer projeto original.
+
+## [v1.2.0] — Adaptive Mode
 
 ### Added
 
