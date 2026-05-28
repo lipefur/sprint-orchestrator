@@ -40,8 +40,10 @@ read_profile_key() {
     yq eval ".$key // \"\"" "$PROFILE_FILE" 2>/dev/null
   else
     # Fallback: simple grep/sed. Only works for top-level keys or single-level nested.
+    # Strips inline YAML comments (" # ...") and surrounding whitespace/quotes.
+    # `|| true` so a missing key returns empty instead of failing under set -e/pipefail.
     local short_key="${key##*.}"
-    grep -E "^[[:space:]]*${short_key}:" "$PROFILE_FILE" | head -1 | sed -E "s/^[[:space:]]*${short_key}:[[:space:]]*//; s/[[:space:]]*$//; s/^\"//; s/\"$//"
+    { grep -E "^[[:space:]]*${short_key}:" "$PROFILE_FILE" 2>/dev/null || true; } | head -1 | sed -E "s/^[[:space:]]*${short_key}:[[:space:]]*//; s/[[:space:]]+#.*$//; s/[[:space:]]*$//; s/^\"//; s/\"$//"
   fi
 }
 
@@ -52,6 +54,10 @@ WORKTREES_PATH="$(read_profile_key worktrees)"
 WORKTREES_PATH="${WORKTREES_PATH:-.claude/worktrees}"
 DISPATCH_METHOD="$(read_profile_key method)"
 DISPATCH_METHOD="${DISPATCH_METHOD:-claude-cli}"
+MODEL_MODE="$(read_profile_key mode)"
+MODEL_MODE="${MODEL_MODE:-}"                      # vazio se profile antigo sem model:
+CONTEXT_WINDOW="$(read_profile_key context_window)"
+CONTEXT_WINDOW="${CONTEXT_WINDOW:-200k}"          # conservador se ausente
 
 if [ -z "$PROJECT_NAME" ]; then
   echo "❌ Could not read project_name from profile"
@@ -102,6 +108,32 @@ git pull --ff-only origin main >/dev/null 2>&1 || true
 WORKTREE_COMMIT="$(git rev-parse --short HEAD)"
 cd "$REPO_ROOT"
 
+# -----------------------------------------------------------------------------
+# Resolve effective execution mode (monolithic vs split)
+# -----------------------------------------------------------------------------
+# monolithic = same chat does execution (cd into worktree, no new chat)
+# split      = open new chat via URL scheme (legacy behavior)
+#
+# Orchestrator may force via env: SPRINT_MODE=split|monolithic
+# Otherwise: profile model.mode + context_window decide.
+# Profile without model: block → MODEL_MODE empty → falls to auto → 200k default → split.
+
+EFFECTIVE_MODE="${SPRINT_MODE:-}"
+if [ -z "$EFFECTIVE_MODE" ]; then
+  case "$MODEL_MODE" in
+    monolithic) EFFECTIVE_MODE="monolithic" ;;
+    split)      EFFECTIVE_MODE="split" ;;
+    auto|"")
+      if [ "$CONTEXT_WINDOW" = "1m" ]; then
+        EFFECTIVE_MODE="monolithic"
+      else
+        EFFECTIVE_MODE="split"
+      fi
+      ;;
+    *) EFFECTIVE_MODE="split" ;;
+  esac
+fi
+
 mkdir -p .sprint-orchestrator
 STATE_FILE=".sprint-orchestrator/state.md"
 TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -117,6 +149,7 @@ cat >> "$STATE_FILE" <<EOF
 
 ## Sprint $N — $THEME_SLUG
 - **Fase**: DISPATCH (criando worktree)
+- **Modo**: $EFFECTIVE_MODE
 - **Worktree**: $WORKTREE_RELATIVE
 - **Branch**: $BRANCH_NAME
 - **Plano**: $PLAN_PATH ($LINE_COUNT linhas)
@@ -378,33 +411,58 @@ EOM
 #
 # When "auto" (or unset), detect the environment and choose accordingly.
 
-EFFECTIVE_METHOD="$DISPATCH_METHOD"
-if [ -z "$EFFECTIVE_METHOD" ] || [ "$EFFECTIVE_METHOD" = "auto" ]; then
-  DETECTED_ENV="$(detect_environment)"
-  echo "🔍 Detected environment: $DETECTED_ENV"
-  case "$DETECTED_ENV" in
-    claude-code-cli) EFFECTIVE_METHOD="claude-cli" ;;
-    cursor)          EFFECTIVE_METHOD="cursor" ;;
-    vscode)          EFFECTIVE_METHOD="vscode" ;;
-    antigravity)     EFFECTIVE_METHOD="antigravity" ;;
-    windsurf)        EFFECTIVE_METHOD="windsurf" ;;
-    *)               EFFECTIVE_METHOD="clipboard-only" ;;
+# -----------------------------------------------------------------------------
+# Dispatch — branches by execution mode
+# -----------------------------------------------------------------------------
+
+if [ "$EFFECTIVE_MODE" = "monolithic" ]; then
+  # Monolithic: same chat does execution. No new chat, no URL scheme.
+  EFFECTIVE_METHOD="monolithic"
+  cat <<EOM
+
+🧩 Modo MONOLITHIC (mesmo chat executa)
+
+Worktree criado em: $WORKTREE_ABSOLUTE
+Branch: $BRANCH_NAME
+
+Próximo passo NESTE mesmo chat:
+  cd $WORKTREE_ABSOLUTE
+  # Lê o plano: $PLAN_PATH ($LINE_COUNT linhas)
+  # Executa as fases EXECUTE + REVIEW aqui.
+  # Dispatcha subagents (Task tool) só pra áreas disjuntas.
+
+NÃO abre chat novo. NÃO usa URL scheme. O orquestrador vira executor.
+EOM
+else
+  # Split: open a new chat. Resolve dispatch method (auto-detect IDE).
+  EFFECTIVE_METHOD="$DISPATCH_METHOD"
+  if [ -z "$EFFECTIVE_METHOD" ] || [ "$EFFECTIVE_METHOD" = "auto" ]; then
+    DETECTED_ENV="$(detect_environment)"
+    echo "🔍 Detected environment: $DETECTED_ENV"
+    case "$DETECTED_ENV" in
+      claude-code-cli) EFFECTIVE_METHOD="claude-cli" ;;
+      cursor)          EFFECTIVE_METHOD="cursor" ;;
+      vscode)          EFFECTIVE_METHOD="vscode" ;;
+      antigravity)     EFFECTIVE_METHOD="antigravity" ;;
+      windsurf)        EFFECTIVE_METHOD="windsurf" ;;
+      *)               EFFECTIVE_METHOD="clipboard-only" ;;
+    esac
+  fi
+
+  case "$EFFECTIVE_METHOD" in
+    claude-cli)      dispatch_via_claude_cli      || dispatch_via_clipboard ;;
+    claude-desktop)  dispatch_via_claude_desktop  || dispatch_via_clipboard ;;
+    cursor)          dispatch_via_cursor ;;
+    vscode)          dispatch_via_vscode ;;
+    antigravity)     dispatch_via_antigravity ;;
+    windsurf)        dispatch_via_windsurf ;;
+    clipboard-only)  dispatch_via_clipboard ;;
+    *)
+      echo "Unknown dispatch.method: $EFFECTIVE_METHOD — falling back to clipboard"
+      dispatch_via_clipboard
+      ;;
   esac
 fi
-
-case "$EFFECTIVE_METHOD" in
-  claude-cli)      dispatch_via_claude_cli      || dispatch_via_clipboard ;;
-  claude-desktop)  dispatch_via_claude_desktop  || dispatch_via_clipboard ;;
-  cursor)          dispatch_via_cursor ;;
-  vscode)          dispatch_via_vscode ;;
-  antigravity)     dispatch_via_antigravity ;;
-  windsurf)        dispatch_via_windsurf ;;
-  clipboard-only)  dispatch_via_clipboard ;;
-  *)
-    echo "Unknown dispatch.method: $EFFECTIVE_METHOD — falling back to clipboard"
-    dispatch_via_clipboard
-    ;;
-esac
 
 DISPATCH_METHOD="$EFFECTIVE_METHOD"
 
@@ -420,6 +478,7 @@ Variables for reference:
   WORKTREE_COMMIT    = $WORKTREE_COMMIT
   PLAN_PATH          = $PLAN_PATH
   LINE_COUNT         = $LINE_COUNT
+  MODE               = $EFFECTIVE_MODE
   DISPATCH_METHOD    = $DISPATCH_METHOD
 
 Next steps:
