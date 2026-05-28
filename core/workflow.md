@@ -1,6 +1,6 @@
 # Workflow — 4 fases do Sprint
 
-Padrão validado em 17+ sprints. Separa estratégia de execução em chats diferentes pra evitar context bloat e maximizar paralelismo.
+Padrão validado em 17+ sprints. Organiza o trabalho de sprint em fases claras com isolation via git worktree, paralelismo via multi-agent, e memória institucional (anti-patterns + bug-patterns que acumulam). Em modelos com context window menor (200k), também evita context bloat dividindo estratégia e execução em chats separados — mas esse é um dos benefícios, não o único.
 
 ## Modelo mental
 
@@ -25,6 +25,46 @@ Padrão validado em 17+ sprints. Separa estratégia de execução em chats difer
                   ↓ PR pronto
             volta pro orchestrator
 ```
+
+## Modos adaptativos (monolithic / split / auto)
+
+A skill funciona em dois modos, escolhidos pela heurística abaixo conforme o context window disponível e o tamanho do sprint.
+
+### Heurística de decisão (roda na fase PLAN)
+
+```
+profile.model ausente            → split  (assume 200k, comportamento legado)
+profile.model.mode == monolithic → monolithic  (override fixo)
+profile.model.mode == split      → split        (override fixo)
+profile.model.mode == auto:
+    context_window == 200k        → split   (monolithic não cabe)
+    context_window == 1m:
+        sprint épico              → split   (multi-área, esforço alto, paralelismo pesado)
+        sprint pequeno/médio      → monolithic
+```
+
+`sprint épico` = esforço alto + 2+ áreas independentes. Pequeno/médio = o resto.
+
+Após decidir em modo `auto`, **anuncie e aceite veto**:
+
+> "Sprint médio + você tem 1M → vou de monolithic. OK ou prefere split?"
+
+Registre o modo escolhido no `state.md` do sprint.
+
+### O que muda por modo
+
+| Fase | Split | Monolithic |
+|---|---|---|
+| PLAN | brainstorm + plano + commit em main | igual |
+| DISPATCH | `create-worktree.sh` cria worktree + abre chat novo (URL scheme) | `create-worktree.sh` cria worktree; o mesmo chat faz `cd` e continua |
+| EXECUTE | sprint chat separado executa | mesmo chat executa; subagents só se áreas disjuntas |
+| REVIEW | volta pro orchestrator chat | mesmo chat revisa (adversarial via subagent) |
+
+**Invariantes nos dois modos:** worktree isolado, `state.md` atualizado por fase, completion report no fim, checklists aplicam igual.
+
+### Memory em 1m
+
+Com `context_window: 1m`, o orquestrador pode carregar memories de sprints anteriores inteiras quando precisar — sem a seletividade que 200k exigia. Memory continua `.md` por sprint.
 
 ## Fases
 
