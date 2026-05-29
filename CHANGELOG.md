@@ -5,6 +5,17 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [v1.3.0] — Sprint resilience (doom-loop guard + escalation ladder)
+
+### Added
+
+- **Doom-loop guard + escalation ladder.** Threshold explícito de tentativas: o mesmo passo/teste que falha 3× faz o sprint chat **parar** em vez de girar queimando token (crítico no modo monolithic 1M, onde o contexto longo mascara o loop). Escala conforme o modo — split → `BLOCKED` pro orquestrador; monolithic → pergunta ao user; subagent → parent re-tenta 1× e recolhe a área. Novo anti-pattern #11 (`core/anti-patterns.md`), regra na fase EXECUTE (`core/workflow.md`), guard injetado no `templates/prompt-dispatch.md`, variante pra subagents em `core/multi-agent-strategy.md`.
+- **Injeção proativa de pitfalls no dispatch.** O prompt do sprint chat manda revisar os `bug-patterns.md` dos addons ativos + anti-patterns #1-11 **antes de codar** — não repetir trap já conhecido.
+
+### Notes
+
+- Mecanismos inspirados num estudo das skills de execução de sprint no skills.sh — `zxdxjtu/harness` e `pillip/claude-dev-kit` convergiram independentemente num threshold de 3, sinal forte de que é um gap real. Mantido o que a nossa já fazia melhor (modos adaptativos, dispatch multi-IDE, deploy gate, e2e, docs tri-língue).
+
 ## [v1.2.3] — Gate de evidência de validação prod
 
 ### Added

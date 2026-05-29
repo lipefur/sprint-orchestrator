@@ -161,6 +161,22 @@ Cada trigger constrói essencialmente o mesmo código, mas a plataforma processa
 
 ---
 
+## 11. Doom loop — re-tentar o mesmo fix falho sem escalar
+
+**Sintoma:** Sprint chat (ou subagent) tenta o mesmo fix 5, 8, 12× — cada uma "quase lá" — queimando contexto e token sem convergir. Pior no modo monolithic 1M, onde o contexto longo mascara que está girando em círculo.
+
+**Causa:** Sem threshold de tentativas. O agente trata "tentar de novo" como progresso e nunca chega no ponto de admitir "não resolvo isso sozinho" e escalar.
+
+**Fix preventivo:** Threshold explícito (default **3**). Mesmo passo/teste falhou 3× → **PARA**. Captura causa-raiz (o que tentou + por que falhou) e escala conforme o modo:
+
+- **Split:** emite status `BLOCKED` no completion report → orquestrador assume o fix.
+- **Monolithic:** para e pergunta ao user (não há outro chat pra escalar).
+- **Subagent:** o parent re-tenta **1×** com contexto extra (a causa da falha); falhou de novo → recolhe a área e escala, não insiste.
+
+**Fix reativo:** Se já entrou em loop, para na hora, registra as N tentativas + causa no `state.md`/report e escala. A falha vira pitfall (capture-learnings) pro próximo sprint não repetir.
+
+---
+
 ## Como adicionar caso novo
 
 Após cada deploy debug, se descobriu padrão **cross-cutting** (aparece em mais de uma stack):

@@ -91,6 +91,7 @@ Com `context_window: 1m`, o orquestrador pode carregar memories de sprints anter
    - Verifica path do plano + line count (PARA se não bate)
    - Lê plano completo
    - Multi-agent paralelo se aplicável
+   - **Guard de doom-loop:** se o MESMO passo/teste falhar 3× seguidas, PARA — re-tentar não é progresso. Captura causa-raiz e escala: split → status `BLOCKED` no report (orquestrador assume); monolithic → pergunta ao user. (Subagent: parent re-tenta 1× com contexto, depois recolhe a área e escala — ver `multi-agent-strategy.md`.) Detalhe em anti-pattern #11.
    - Roda smoke local (`{profile.smoke.local}`)
    - **Quando addon `e2e-validation` ativo**: roda Playwright MCP nos fluxos declarados ANTES de abrir PR
    - Abre 1 PR único, conventional commits

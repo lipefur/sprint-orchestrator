@@ -37,6 +37,7 @@ Cada tipo tem rituais específicos. Consulte a seção "DoD" do plano.
 - Commits incrementais, conventional commits, mensagens PT-BR
 - NÃO mergeia em main — orquestrador faz
 - Atualiza `.sprint-orchestrator/state.md` ao terminar com PR # e fase=REVIEW
+- **Doom-loop guard:** mesmo passo/teste falhou 3× → PARA, não re-tenta no muque. Captura causa-raiz e emite `BLOCKED` no report (orquestrador assume). Re-tentar não é progresso depois do 3º strike (anti-pattern #11).
 
 ## Padrões por addon ativo no projeto
 
@@ -50,13 +51,14 @@ Cada tipo tem rituais específicos. Consulte a seção "DoD" do plano.
 
 ## Anti-padrões críticos (cross-cutting)
 
-Ver `core/anti-patterns.md` da skill. Top 5 imediatos:
+**Antes de escrever código:** revise `core/anti-patterns.md` (#1-11) + os `addons/<ativo>/bug-patterns.md` dos addons do projeto — não repita trap já conhecido. Top imediatos:
 
 - ❌ Hardcoded `localhost:PORT` em código que vai pra container
 - ❌ Inventar tabela/schema sem verificar com `psql -c '\d'`
 - ❌ Workflow CI esquecer migration nova
 - ❌ Sprint chat decidir trade-off técnico não batido pelo orquestrador — para e reporta
 - ❌ Mergear sem smoke (+ E2E se aplicável) passar local
+- ❌ Doom loop: re-tentar o mesmo fix falho 3×+ sem escalar (#11)
 
 ## Multi-agent strategy ({{ se aplica }})
 

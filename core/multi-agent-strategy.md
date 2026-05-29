@@ -97,6 +97,16 @@ Use `sequence` quando aplicável: sprint chat dispatch A, espera, dispatch B+C.
 - **Arquivo `.sprint-status.md`** compartilhado (não-commitado)
 - **Convenção:** Agent B só começa depois que Agent A push commit X
 
+## Resiliência — subagent que falha
+
+Subagent não deve girar num fix que não converge:
+
+- Subagent falha → parent re-tenta **1×** com contexto extra (a causa da falha + o que já tentou).
+- Falhou de novo → parent **recolhe a área**, marca a parte como `BLOCKED` no report e escala — não re-dispatcha um 3º round.
+- 3 falhas no total entre áreas → para o sprint e escala (split → orquestrador; monolithic → user).
+
+Vale igual pro chat e pros subagents — ver anti-pattern #11 (doom-loop).
+
 ## Modelo recomendado
 
 | Agents | Modelo | `think hard`? |
