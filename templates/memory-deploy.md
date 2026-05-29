@@ -46,10 +46,14 @@ Salvar em `{profile.paths.memory}/project_sprint_{N}_deploy_{YYYY-MM-DD}.md`.
 
 ### 6. Validação prod
 
-| Endpoint/fluxo | Status | Notes |
-|---|---|---|
-| {{URL X}} | ✅ 200 | {{}} |
-| {{Fluxo E2E Y}} | ✅ PASS | {{}} |
+> Smoke de prod = Playwright **navegado** contra a URL de produção (login + render + console). `curl`/HTTP 200 é só **liveness** — não fecha o gate de DONE (ver `core/anti-patterns.md` #10).
+
+| Check | Tipo | Status | Notes |
+|---|---|---|---|
+| {{URL X}}/health | liveness (`curl`) | ✅ 200 | endpoint respondeu |
+| {{Fluxo Y}} em prod | **navegado** (Playwright) | ✅ PASS | login + render + console |
+
+(Navegado pulado? Registra o motivo aqui — gap conhecido, não suposição.)
 
 Boot logs do service principal:
 ```

@@ -135,6 +135,7 @@ Formato:
 ## Sprint 13 — billing webhooks (mergeado)
 - **Status**: ✅ Deploy completo em 2026-05-18
 - **PR**: #15 mergeado em 2026-05-17
+- **Validação prod**: https://app.exemplo.com — Playwright navegado: login + render + console OK
 - **Memory**: project_sprint_13_deploy_2026-05-18.md
 ```
 

@@ -83,6 +83,7 @@ Se sprint mexeu em UI, rodar Chrome DevTools MCP ou Playwright contra URL prod:
 
 ## 8. Atualiza memory
 
+- [ ] **Gate de DONE — evidência de validação prod no `state.md`.** Se o sprint mexeu em UI (ou `e2e-validation` ativo), **NÃO** marca `fase=DONE` sem registrar no `state.md`: URL prod **navegada** + o que foi checado (login/render/console) + PASS/FAIL. Validação pulada/bloqueada → registra o **motivo explícito** (gap conhecido, não suposição). `curl`/preview não fecham esse gate (ver #10).
 - [ ] Cria `project_sprint_{N}_deploy_{YYYY-MM-DD}.md` (template `templates/memory-deploy.md`)
 - [ ] Atualiza state.md (fase=DONE)
 - [ ] Linha no MEMORY.md principal do projeto

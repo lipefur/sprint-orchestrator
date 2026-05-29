@@ -5,6 +5,12 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [v1.2.3] — Gate de evidência de validação prod
+
+### Added
+
+- **`fase=DONE` agora exige evidência de validação prod no `state.md`.** Operacionaliza o anti-pattern #10: quando o sprint mexeu em UI (ou `e2e-validation` ativo), o orquestrador não fecha o sprint sem registrar no `state.md` a URL prod **navegada** + o que foi checado (login/render/console) + PASS/FAIL — ou o **motivo explícito** se foi pulado (gap conhecido, não suposição). `curl`/preview não fecham o gate. Reforçado em `checklists/deploy-prod.md` (§8), no schema do `state.md` (`core/workflow.md`) e no template `memory-deploy.md` (§6 distingue liveness `curl` vs navegado Playwright).
+
 ## [v1.2.2] — Hardening da validação de prod
 
 ### Changed
