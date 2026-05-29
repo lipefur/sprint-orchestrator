@@ -36,8 +36,10 @@ Ver detalhes em `playwright-patterns.md` (default) e `alternative-tools.md` (Chr
 - Se falha: fix inline no orchestrator (não delega)
 
 **Fase DEPLOY (orchestrator):**
-- Roda Playwright contra URL de produção
+- Roda Playwright **navegado contra a URL de produção** (login real + render + console) — pós-merge e pós-deploy
 - Se falha: decide rollback ou hotfix inline
+
+> ⚠️ **Local / preview / `curl` ≠ smoke de prod.** Dev server, preview deploy (`github-actions/preview-validation`) e `curl` validam a mudança num ambiente efêmero ou só provam liveness (endpoint respondeu) — cobrem EXECUTE/REVIEW, **não** o DEPLOY. A fase DEPLOY só fecha com Playwright navegado contra prod. Ver `core/anti-patterns.md` #10.
 
 Ver `pre-pr-validation.md` pra checklist obrigatório.
 

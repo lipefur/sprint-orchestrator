@@ -62,14 +62,16 @@ done
 
 ## 6. Smoke E2E em prod
 
-Quando addon `e2e-validation` ativo, roda Playwright contra URL prod (não localhost):
+> **Smoke de prod = Playwright navegado contra a URL de PRODUÇÃO** (login real + render + console). Dev server local, preview deploy e `curl` **não contam** — cobrem EXECUTE/REVIEW, não DEPLOY (ver `core/anti-patterns.md` #10).
 
-- [ ] Golden path passa
+Quando addon `e2e-validation` ativo, roda Playwright contra URL prod (não localhost, não preview):
+
+- [ ] Golden path passa (navegado, não só HTTP 200)
 - [ ] Edge cases passam
 - [ ] Endpoints pré-existentes continuam OK (regressão)
 - [ ] Endpoints novos retornam status esperado
 
-Sem `e2e-validation` ativo: smoke manual via `curl` dos endpoints críticos.
+Sem `e2e-validation` ativo: `curl` dos endpoints críticos prova só **liveness** (respondeu) — não fecha login/UI. Se o sprint mexeu em UI, faça o passo 7 mesmo sem o addon.
 
 ## 7. Validação adicional via UI (se aplicável)
 

@@ -5,6 +5,12 @@ Registro de mudanças da skill `sprint-orchestrator`.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/).
 Versionamento segue [SemVer](https://semver.org/).
 
+## [v1.2.2] — Hardening da validação de prod
+
+### Changed
+
+- **Validação de prod não aceita mais atalho local/preview.** Novo anti-pattern #10 (`core/anti-patterns.md`): dev server local, preview deploy (`github-actions/preview-validation`) e `curl` validam a fase EXECUTE/REVIEW (mudança num ambiente efêmero / liveness) — **nunca** a fase DEPLOY. A fase DEPLOY só fecha com Playwright **navegado contra a URL de produção** (login real + render + console). Reforçado em `addons/e2e-validation/README.md`, `checklists/deploy-prod.md` (§6) e `core/workflow.md` (Fase 4).
+
 ## [v1.2.1] — Dispatch reliability fix
 
 ### Fixed

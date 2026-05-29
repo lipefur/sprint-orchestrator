@@ -148,6 +148,19 @@ Cada trigger constrói essencialmente o mesmo código, mas a plataforma processa
 
 ---
 
+## 10. Validação local/preview tratada como validação de prod
+
+**Sintoma:** Fase DEPLOY dada como concluída/validada porque (a) um dev/preview server respondeu, (b) `curl` num endpoint deu 200, ou (c) o comment de preview-validation ficou verde. Mas a **URL de produção nunca foi navegada de verdade** — login real, render, console.
+
+**Causa:** Duas confusões empilhadas:
+
+1. **Fase.** Dev server local e o preview deploy (addon `github-actions/preview-validation`) validam a *mudança* num ambiente efêmero → fase **EXECUTE/REVIEW**, não prod. "Verificar via preview" cobre o local, não o DEPLOY.
+2. **Profundidade.** `curl` (mesmo apelidado de "smoke") só prova **liveness** — que o endpoint responde. Não prova login real, render visual, nem console sem erro.
+
+**Fix:** A fase **DEPLOY** só fecha com **Playwright navegado contra a URL de produção** — login real + render + console limpo — **pós-merge e pós-deploy**. Smoke local, preview deploy e `curl` cobrem EXECUTE/REVIEW e **nunca** substituem o smoke de prod. Irmão do #8 (lá o smoke local está mal-configurado; aqui ele está certo mas sendo usado na fase errada).
+
+---
+
 ## Como adicionar caso novo
 
 Após cada deploy debug, se descobriu padrão **cross-cutting** (aparece em mais de uma stack):

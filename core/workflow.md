@@ -104,7 +104,7 @@ Com `context_window: 1m`, o orquestrador pode carregar memories de sprints anter
    - Lê `.sprint-orchestrator/state.md`
    - Roda checklist `checklists/post-pr-review.md` (versão Fase 2 será addon-aware)
    - Fixes inline se CI falhar (não delega de volta)
-   - Roda Playwright pós-merge contra URL prod (quando `e2e-validation` ativo)
+   - Roda Playwright **navegado** pós-merge contra URL prod (quando `e2e-validation` ativo) — preview/local/`curl` cobrem EXECUTE/REVIEW, não isto (anti-pattern #10)
    - Merge quando verde
    - Roda checklist `checklists/deploy-prod.md`
    - Atualiza state.md com fase=DONE + memory deploy
