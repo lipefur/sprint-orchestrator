@@ -1,6 +1,6 @@
 ---
 name: sprint-orchestrator
-description: Use when the user wants to plan, dispatch, review or deploy software sprints in a multi-chat orchestration pattern. Skill provides a portable workflow with auto-discovery of project profile, modular addons (postgres, multi-tenant, nextjs, coolify-ssh, e2e-validation, etc), URL-scheme dispatch to new Claude Code sessions, and validated checklists from 17+ production sprints. Reads `.sprint-orchestrator.yml` from the consuming project.
+description: Use when the user wants to plan, dispatch, review or deploy software sprints in a multi-chat orchestration pattern — running parallel multi-agent work across isolated git worktrees without context bloat in long Claude sessions. Skill provides a portable workflow with auto-discovery of project profile, modular addons (postgres, multi-tenant, nextjs, coolify-ssh, e2e-validation, etc), URL-scheme dispatch to new Claude Code sessions, and validated checklists from 17+ production sprints. Reads `.sprint-orchestrator.yml` from the consuming project.
 ---
 
 # Sprint Orchestrator

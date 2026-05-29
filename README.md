@@ -11,7 +11,7 @@
 [![skills.sh](https://img.shields.io/badge/skills.sh-install-black)](https://www.skills.sh)
 
 **🌍 Idiomas:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
-**📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
+**📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md)
 
 ---
 
@@ -39,6 +39,23 @@ Pensa em construir software como fazer um filme:
 Você não filma cada quadro. Você **dirige**, o produtor **planeja e revisa**, as equipes **executam em paralelo**.
 
 É isso. É essa a skill.
+
+![Demo: um comando despacha um sprint para um novo chat isolado, que executa em paralelo e abre um PR](assets/demo.gif)
+
+```mermaid
+sequenceDiagram
+    actor V as Você (Diretor)
+    participant O as Chat Orquestrador
+    participant S as Chat de Sprint
+    participant G as GitHub
+    V->>O: Planejar sprint 1 (login OAuth)
+    O->>O: Brainstorm, escreve plano, commita
+    O->>S: Dispatch abre janela nova com o plano
+    S->>S: Executa em paralelo (1-4 agents)
+    S->>G: Abre PR (sem merge)
+    G-->>O: Notifica que o PR está pronto
+    O->>V: Review adversarial, merge e deploy
+```
 
 ## 🎯 Antes / Depois
 
@@ -292,7 +309,7 @@ Sobrescreve por projeto via `dispatch.method` no profile.
 
 ## Status
 
-**v1.0.1** (atual): fundação + 3 workflows avançados + installer one-liner.
+**v1.2.0** (atual): fundação + workflows avançados + installer one-liner + dashboard visual + modos adaptativos (1M/200k).
 
 **Roadmap (v2.0):**
 

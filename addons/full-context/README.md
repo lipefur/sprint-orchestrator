@@ -16,7 +16,7 @@ Requer `model.context_window: 1m` no profile. Sem efeito em 200k.
 
 `load-context.sh` gera um dump do repo excluindo ruído:
 
-- Exclui: `node_modules`, `.git`, `build`, `dist`, `.next`, `target`, `vendor`, lockfiles, binários, imagens, `_legacy`
+- Exclui: `node_modules`, `.git`, `build`, `dist`, `.next`, `target`, `vendor`, lockfiles, binários, imagens, `_legacy`, e **segredos** (`.env*`, chaves, certs, `.ssh/`, `.aws/`)
 - Limite de segurança: se o dump estimado passa de ~500k tokens (~2MB de texto), aborta e avisa pra usar exploração incremental
 
 ## Uso

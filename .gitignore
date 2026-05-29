@@ -12,3 +12,6 @@ test-profile.yml
 # Python cache
 __pycache__/
 *.pyc
+
+# Playwright MCP local cache (not part of the skill)
+.playwright-mcp/

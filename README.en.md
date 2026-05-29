@@ -11,7 +11,7 @@
 [![skills.sh](https://img.shields.io/badge/skills.sh-install-black)](https://www.skills.sh)
 
 **🌍 Languages:** [Português](README.md) · [English](README.en.md) · [Español](README.es.md)
-**📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md) · [Recipes](docs/recipes/)
+**📚 Docs:** [Tutorial](docs/tutorial-getting-started.md) · [FAQ](docs/faq.md)
 
 ---
 
@@ -39,6 +39,23 @@ Think of building software like making a movie:
 You don't film every frame yourself. You **direct**, the production manager **plans and reviews**, the crews **execute in parallel**.
 
 That's it. That's the skill.
+
+![Demo: one command dispatches a sprint to a fresh isolated chat that executes in parallel and opens a PR](assets/demo.gif)
+
+```mermaid
+sequenceDiagram
+    actor V as You (Director)
+    participant O as Orchestrator chat
+    participant S as Sprint chat
+    participant G as GitHub
+    V->>O: Plan sprint 1 (OAuth login)
+    O->>O: Brainstorm, write plan, commit
+    O->>S: Dispatch opens a new chat with the plan
+    S->>S: Execute in parallel (1-4 agents)
+    S->>G: Open PR (no merge)
+    G-->>O: Notify that the PR is ready
+    O->>V: Adversarial review, merge & deploy
+```
 
 ## 🎯 Before / After
 
@@ -292,7 +309,7 @@ Override per-project via `dispatch.method` in profile.
 
 ## Status
 
-**v1.0.1** (current): foundation + 3 advanced workflows + one-liner installer.
+**v1.2.0** (current): foundation + advanced workflows + one-liner installer + visual dashboard + adaptive modes (1M/200k).
 
 **Roadmap (v2.0):**
 

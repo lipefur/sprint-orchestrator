@@ -36,6 +36,10 @@ FILES=$(find . -type f \
   -not -name "*.tar" -not -name "*.gz" \
   -not -name "*.woff" -not -name "*.woff2" -not -name "*.ttf" -not -name "*.eot" \
   -not -name "*.mp4" -not -name "*.mov" -not -name "*.bin" \
+  -not -name ".env" -not -name ".env.*" \
+  -not -name "*.pem" -not -name "*.key" -not -name "*.p12" -not -name "*.pfx" -not -name "*.keystore" \
+  -not -name "id_rsa*" -not -name "id_ed25519*" -not -name "id_dsa*" \
+  -not -path "*/.ssh/*" -not -path "*/.aws/*" -not -path "*/.gnupg/*" \
   2>/dev/null | sort)
 
 # Estimate total size
